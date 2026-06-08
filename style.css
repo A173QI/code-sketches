@@ -92,7 +92,8 @@ body.home-body {
     max-width: 100%;
     width: 100%;
     padding: 2rem 4rem;
-    background-color: var(--color-bg);
+    background-color: #ffffff !important;
+    background-blend-mode: normal !important;
     overflow-x: hidden;
 }
 

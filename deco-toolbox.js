@@ -119,7 +119,6 @@
         'yellow_measuring_tape_41.png'
     ];
 
-    // Generate variation list
     const assetPool = [];
     baseAssets.forEach(base => {
         assetPool.push(base);
@@ -128,31 +127,80 @@
         assetPool.push(base.replace('.png', '_hv.png'));
     });
 
-    // 2. Inject CSS styles for editor visual feedback
+    // 2. Inject CSS Styles
     const styleEl = document.createElement('style');
     styleEl.innerHTML = `
-        /* Interactive dragging states */
+        /* Interactive dragging states - Outlines completely removed */
         .deco-img {
             cursor: grab !important;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease, filter 0.4s ease, outline 0.2s !important;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease, filter 0.4s ease !important;
+            outline: none !important;
+            border: none !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -webkit-user-drag: none !important;
         }
         .deco-img:hover {
-            outline: 2px dashed #2274a5 !important;
-            outline-offset: 4px !important;
             cursor: grab !important;
         }
         .deco-img.dragging {
             cursor: grabbing !important;
-            opacity: 0.85 !important;
-            outline: 2px dashed #2ecc71 !important;
-            outline-offset: 6px !important;
+            opacity: 0.95 !important;
             transition: none !important;
+            outline: none !important;
+            border: none !important;
         }
-        
-        /* Empty space helper hint */
-        .sketch-content.edit-hint {
-            outline: 2px dashed rgba(34, 116, 165, 0.15);
-            outline-offset: 10px;
+
+        /* Leaf Blower styles - fixed viewport container hidden in invisible frame */
+        #leaf-blower-container {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            z-index: 1000000;
+            pointer-events: auto;
+            background: transparent;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            overflow: visible;
+        }
+        #leaf-blower {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* Slide-hidden off screen by default, rotated */
+            transform: translate(65px, 65px) rotate(45deg);
+            transform-origin: bottom right;
+            outline: none !important;
+            border: none !important;
+            filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.25));
+        }
+        #leaf-blower-container:hover #leaf-blower {
+            /* Slide into view and rotate to active position */
+            transform: translate(-10px, -10px) rotate(0deg);
+            filter: drop-shadow(6px 12px 20px rgba(0,0,0,0.35));
+        }
+        #leaf-blower-label {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000001;
+            background: rgba(19, 27, 35, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e9f1f7;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: none;
+            white-space: nowrap;
+            transform: translate(-50%, -140%);
         }
     `;
     document.head.appendChild(styleEl);
@@ -174,7 +222,7 @@
     };
     detectPrefix();
 
-    // 4. Drag & Drop Implementation
+    // 4. Drag & Drop Implementation (Fixing Jump bug)
     let activeDragEl = null;
     let startX = 0, startY = 0;
     let elemStartX = 0, elemStartY = 0;
@@ -182,7 +230,8 @@
 
     const onMouseDown = (e) => {
         const img = e.target.closest('.deco-img');
-        if (!img) return;
+        // Prevent drag on leaf blower itself
+        if (!img || img.id === 'leaf-blower') return;
 
         e.preventDefault();
         activeDragEl = img;
@@ -194,14 +243,10 @@
         startX = e.clientX;
         startY = e.clientY;
 
-        elemStartX = parseInt(activeDragEl.style.left, 10);
-        elemStartY = parseInt(activeDragEl.style.top, 10);
-
-        if (isNaN(elemStartX)) {
-            const imgRect = activeDragEl.getBoundingClientRect();
-            elemStartX = imgRect.left - contentRect.left;
-            elemStartY = imgRect.top - contentRect.top;
-        }
+        // BUG FIX: Use offsetLeft and offsetTop directly (un-transformed layout pixels)
+        // to prevent jumps from percentage values, right positioning, or rotation transforms.
+        elemStartX = activeDragEl.offsetLeft;
+        elemStartY = activeDragEl.offsetTop;
 
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
@@ -226,16 +271,16 @@
         if (activeDragEl) {
             activeDragEl.classList.remove('dragging');
             activeDragEl = null;
-            debouncedSave(); // Auto-save on drag end
+            debouncedSave();
         }
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
     };
 
-    // Touch Support for Mobile Dragging
+    // Touch Support for Mobile Dragging (Fixing Jump bug)
     const onTouchStart = (e) => {
         const img = e.target.closest('.deco-img');
-        if (!img) return;
+        if (!img || img.id === 'leaf-blower') return;
 
         e.preventDefault();
         activeDragEl = img;
@@ -248,14 +293,9 @@
         startX = touch.clientX;
         startY = touch.clientY;
 
-        elemStartX = parseInt(activeDragEl.style.left, 10);
-        elemStartY = parseInt(activeDragEl.style.top, 10);
-
-        if (isNaN(elemStartX)) {
-            const imgRect = activeDragEl.getBoundingClientRect();
-            elemStartX = imgRect.left - contentRect.left;
-            elemStartY = imgRect.top - contentRect.top;
-        }
+        // BUG FIX: Use offsetLeft and offsetTop directly
+        elemStartX = activeDragEl.offsetLeft;
+        elemStartY = activeDragEl.offsetTop;
 
         document.addEventListener('touchmove', onTouchMove, { passive: false });
         document.addEventListener('touchend', onTouchEnd);
@@ -291,21 +331,18 @@
     // 5. Scroll Wheel to Rotate / Scale
     const onWheel = (e) => {
         const img = e.target.closest('.deco-img');
-        if (!img) return;
+        if (!img || img.id === 'leaf-blower') return;
 
-        e.preventDefault(); // Stop normal scroll
+        e.preventDefault();
 
         const styleStr = img.getAttribute('style') || '';
 
-        // Case A: Shift is pressed -> Resize/Scale
         if (e.shiftKey) {
             let width = img.clientWidth || parseInt(img.style.width, 10) || 100;
             const delta = e.deltaY > 0 ? 5 : -5;
             width = Math.max(40, Math.min(300, width + delta));
             img.style.width = width + 'px';
-        }
-        // Case B: No modifier -> Rotate
-        else {
+        } else {
             let rotation = 0;
             const rotMatch = styleStr.match(/--deco-rotation:\s*(-?\d+)deg/);
             if (rotMatch) {
@@ -316,18 +353,21 @@
             img.style.setProperty('--deco-rotation', rotation + 'deg');
         }
 
-        debouncedSave(); // Auto-save changes
+        debouncedSave();
     };
 
-    // 6. Hover Track (For Keybinds like Delete)
+    // 6. Hover Track
     const onMouseEnter = (e) => {
-        hoveredEl = e.target.closest('.deco-img');
+        const img = e.target.closest('.deco-img');
+        if (img && img.id !== 'leaf-blower') {
+            hoveredEl = img;
+        }
     };
     const onMouseLeave = () => {
         hoveredEl = null;
     };
 
-    // Keydown to Delete (Delete / Backspace)
+    // Keydown to Delete
     document.addEventListener('keydown', (e) => {
         if (hoveredEl && (e.key === 'Delete' || e.key === 'Backspace')) {
             e.preventDefault();
@@ -342,7 +382,7 @@
     // Double-click stamp to delete
     document.addEventListener('dblclick', (e) => {
         const img = e.target.closest('.deco-img');
-        if (img) {
+        if (img && img.id !== 'leaf-blower') {
             e.preventDefault();
             img.remove();
             debouncedSave();
@@ -352,38 +392,31 @@
 
     // 7. Double-click Empty Space to Add Decoration
     document.addEventListener('dblclick', (e) => {
-        // Prevent if double-clicking a stamp or interactive sheet
-        if (e.target.closest('.deco-img') || e.target.closest('.sketch-code-panel') || e.target.closest('.sketch-screenshot-panel') || e.target.closest('.sketch-description-panel') || e.target.closest('.back-link') || e.target.closest('.flip-interactive') || e.target.closest('.words-interactive') || e.target.closest('.typoexp-interactive')) {
+        if (e.target.closest('.deco-img') || e.target.closest('.sketch-code-panel') || e.target.closest('.sketch-screenshot-panel') || e.target.closest('.sketch-description-panel') || e.target.closest('.back-link') || e.target.closest('.flip-interactive') || e.target.closest('.words-interactive') || e.target.closest('.typoexp-interactive') || e.target.id === 'leaf-blower') {
             return;
         }
 
         const contentContainer = document.querySelector('.sketch-content');
         if (!contentContainer) return;
 
-        // Verify click is inside the grid wrapper
         const rect = contentContainer.getBoundingClientRect();
         if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
             e.preventDefault();
 
-            // Calculate local relative click position
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
 
-            // Spawn new stamp
             const newImg = document.createElement('img');
             newImg.className = 'deco-img deco-pos-custom';
             
-            // Choose random stamp from pool
             const randAsset = assetPool[Math.floor(Math.random() * assetPool.length)];
             newImg.setAttribute('src', assetPrefix + randAsset);
             
-            // Set styles at click coordinates
             const randRot = Math.floor(Math.random() * 40) - 20;
             newImg.setAttribute('style', `--deco-rotation: ${randRot}deg; width: 100px; top: ${Math.floor(clickY - 50)}px; left: ${Math.floor(clickX - 50)}px; z-index: 1;`);
             newImg.setAttribute('alt', '');
             newImg.setAttribute('aria-hidden', 'true');
 
-            // Inject and bind events
             contentContainer.insertBefore(newImg, contentContainer.firstChild);
             bindEventsToElement(newImg);
 
@@ -393,17 +426,16 @@
         }
     });
 
-    // 8. Bind all events to an element
     const bindEventsToElement = (el) => {
         el.addEventListener('mouseenter', onMouseEnter);
         el.addEventListener('mouseleave', onMouseLeave);
         el.addEventListener('wheel', onWheel, { passive: false });
     };
 
-    // 9. Save Layout changes to disk via Node dev server
+    // 8. Save Layout changes to disk
     const debouncedSave = () => {
         clearTimeout(saveTimeout);
-        saveTimeout = setTimeout(saveLayoutToDisk, 500); // 500ms debounce to avoid rapid disk writes on scroll
+        saveTimeout = setTimeout(saveLayoutToDisk, 500);
     };
 
     const saveLayoutToDisk = () => {
@@ -411,10 +443,12 @@
         let htmlLines = ['        <!-- Background collage decorations (behind papers) -->'];
 
         docImgs.forEach(img => {
+            // Exclude Leaf Blower from being saved to page markup
+            if (img.id === 'leaf-blower') return;
+
             const src = img.getAttribute('src') || '';
             const filename = src.substring(src.lastIndexOf('/') + 1);
             
-            // Extract class
             let cls = 'deco-img';
             const classes = img.className.split(' ');
             const posClass = classes.find(c => c.startsWith('deco-pos-'));
@@ -424,21 +458,17 @@
                 cls += ' deco-pos-custom';
             }
 
-            // Extract styles
             const styleStr = img.getAttribute('style') || '';
             
-            // Extract rotation
             let rotation = 0;
             const rotMatch = styleStr.match(/--deco-rotation:\s*(-?\d+)deg/);
             if (rotMatch) rotation = parseInt(rotMatch[1], 10);
             
-            // Extract width
             let width = img.style.width || img.clientWidth || 100;
             if (typeof width === 'string' && width.endsWith('px')) {
                 width = parseInt(width, 10);
             }
             
-            // Extract positions
             let leftStyle = '';
             let rightStyle = '';
             let topStyle = '';
@@ -450,7 +480,6 @@
             if (img.style.bottom) bottomStyle = `bottom: ${img.style.bottom}; `;
 
             const zIndexStr = img.style.zIndex ? `z-index: ${img.style.zIndex}; ` : '';
-            
             const fullStyleStr = `--deco-rotation: ${rotation}deg; width: ${width}px; ${topStyle}${bottomStyle}${leftStyle}${rightStyle}${zIndexStr}`.trim();
             
             htmlLines.push(`        <img src="\${prefix}assets/${filename}" class="${cls}" style="${fullStyleStr}" alt="" aria-hidden="true">`);
@@ -494,7 +523,6 @@
 
     // Helper: Toast Notification
     const showToast = (msg) => {
-        // Remove existing toast if present
         const oldToast = document.getElementById('deco-toast-notif');
         if (oldToast) oldToast.remove();
 
@@ -548,20 +576,135 @@
         }, 600);
     };
 
+    // 9. Leaf Blower Logic
+    const initLeafBlower = () => {
+        const blowerContainer = document.createElement('div');
+        blowerContainer.id = 'leaf-blower-container';
+        blowerContainer.innerHTML = `
+            <img src="${assetPrefix}Leaf-Blower.png" id="leaf-blower" class="deco-img" alt="" aria-hidden="true">
+            <div id="leaf-blower-label">Leaf Blower</div>
+        `;
+        document.body.appendChild(blowerContainer);
+
+        const blower = document.getElementById('leaf-blower');
+        const label = document.getElementById('leaf-blower-label');
+
+        // Let label follow cursor inside container
+        blowerContainer.addEventListener('mousemove', (e) => {
+            label.style.display = 'block';
+            label.style.left = e.clientX + 'px';
+            label.style.top = e.clientY + 'px';
+        });
+
+        blowerContainer.addEventListener('mouseleave', () => {
+            label.style.display = 'none';
+        });
+
+        // Blowing physics
+        let isBlowing = false;
+        let blowingLoopId = null;
+
+        const startBlowing = () => {
+            if (isBlowing) return;
+            isBlowing = true;
+            runBlowingLoop();
+        };
+
+        const stopBlowing = () => {
+            isBlowing = false;
+            cancelAnimationFrame(blowingLoopId);
+            debouncedSave(); // Overwrite file on disk when blowing stops!
+        };
+
+        const runBlowingLoop = () => {
+            if (!isBlowing) return;
+
+            const blowerRect = blower.getBoundingClientRect();
+            const contentContainer = document.querySelector('.sketch-content');
+            if (!contentContainer) {
+                blowingLoopId = requestAnimationFrame(runBlowingLoop);
+                return;
+            }
+            const cRect = contentContainer.getBoundingClientRect();
+
+            // The nozzle of the leaf blower is at the top-left corner of the blower image
+            const bx = blowerRect.left;
+            const by = blowerRect.top;
+
+            const docImgs = document.querySelectorAll('.deco-img');
+            docImgs.forEach(img => {
+                // Ignore leaf blower itself and any currently dragged element
+                if (img === blower || img.classList.contains('dragging')) return;
+
+                const imgRect = img.getBoundingClientRect();
+                const cx = imgRect.left + imgRect.width / 2;
+                const cy = imgRect.top + imgRect.height / 2;
+
+                const dx = cx - bx;
+                const dy = cy - by;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+
+                // Affect items within 700px radius from the top of the blower
+                if (dist < 700 && dist > 10) {
+                    const force = (700 - dist) / 700;
+                    const speed = force * 8; // wind speed per frame
+
+                    const vx = (dx / dist) * speed;
+                    const vy = (dy / dist) * speed;
+
+                    // ALWAYS use un-transformed layout offsets relative to offsetParent
+                    let elemLeft = img.offsetLeft;
+                    let elemTop = img.offsetTop;
+
+                    let newLeft = elemLeft + vx;
+                    let newTop = elemTop + vy;
+
+                    // Bound constraints to keep stamps inside the page content area
+                    const minLeft = -80;
+                    const maxLeft = cRect.width + 20;
+                    const minTop = -50;
+                    const maxTop = Math.max(800, cRect.height + 50);
+
+                    newLeft = Math.max(minLeft, Math.min(maxLeft, newLeft));
+                    newTop = Math.max(minTop, Math.min(maxTop, newTop));
+
+                    img.style.left = newLeft + 'px';
+                    img.style.top = newTop + 'px';
+                    img.style.right = 'auto';
+                    img.style.bottom = 'auto';
+                }
+            });
+
+            blowingLoopId = requestAnimationFrame(runBlowingLoop);
+        };
+
+        blowerContainer.addEventListener('mouseenter', startBlowing);
+        blowerContainer.addEventListener('mouseleave', stopBlowing);
+    };
+
     // 10. Initialise Event Bindings
     const init = () => {
         document.addEventListener('mousedown', onMouseDown);
         document.addEventListener('touchstart', onTouchStart, { passive: false });
         
-        const docImgs = document.querySelectorAll('.deco-img');
-        docImgs.forEach(img => {
-            bindEventsToElement(img);
+        // Prevent default native browser image dragging (which triggers ghost image/outline)
+        document.addEventListener('dragstart', (e) => {
+            if (e.target.closest('.deco-img')) {
+                e.preventDefault();
+            }
         });
 
-        console.log('[Layout Editor] Gestures initialized. Drag, wheel scroll to rotate/scale, dblclick/Backspace to delete, dblclick background to add!');
+        const docImgs = document.querySelectorAll('.deco-img');
+        docImgs.forEach(img => {
+            if (img.id !== 'leaf-blower') {
+                bindEventsToElement(img);
+            }
+        });
+
+        initLeafBlower();
+        console.log('[Layout Editor] Direct manipulation gestures with leaf-blowing physics activated!');
     };
 
-    // Run on load
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
