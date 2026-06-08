@@ -307,7 +307,7 @@ body {
     position: absolute;
     z-index: 1; /* Behind the papers (which are relative/transformed and stack above) */
     height: auto;
-    opacity: 0.75;
+    opacity: 1;
     pointer-events: auto; /* Allow hover */
     transform: rotate(var(--deco-rotation, 0deg)) scale(1);
     transform-origin: center center;
@@ -319,7 +319,7 @@ body {
 
 .deco-img:hover {
     transform: rotate(var(--deco-rotation, 0deg)) scale(1.15) !important;
-    opacity: 0.98;
+    opacity: 1;
     z-index: 5;
     /* Deeper shadow on hover to simulate the stamp "lifting" off the background */
     filter: drop-shadow(8px 12px 16px rgba(0, 0, 0, 0.4));
