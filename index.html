@@ -182,15 +182,13 @@
     </div> <!-- Close col-3 -->
     </div> <!-- Close gallery-grid -->
 
-    <!-- Secret Collection Card (Visible on scroll down) -->
+    <!-- Secret Collection Card -->
     <div class="secret-collection-section">
         <a href="secret-collection.html" class="secret-collection-paper">
             <div class="secret-collection-content">
                 <h2>Secret Collection</h2>
-                <p>Scroll down to inspect your drawer of collected curiosities</p>
-                <div class="basket-icon-wrapper">
-                    <img src="assets/Basket.png" alt="Basket" class="secret-basket-icon">
-                </div>
+                <p id="secret-collection-msg">Drag decorations into the basket to collect curiosities</p>
+                <span id="secret-collection-count" class="secret-collection-count"></span>
             </div>
         </a>
     </div>
@@ -227,7 +225,6 @@
                 
                 requestAnimationFrame(update);
             }
-            
             columns.forEach(col => {
                 if (col.el) {
                     col.el.style.transition = 'none';
@@ -235,6 +232,23 @@
             });
             
             update();
+
+            // Update Secret Collection card with item count
+            let collected = [];
+            try {
+                collected = JSON.parse(localStorage.getItem('collected_objects')) || [];
+            } catch(e) {
+                collected = [];
+            }
+            const countEl = document.getElementById('secret-collection-count');
+            const msgEl = document.getElementById('secret-collection-msg');
+            if (collected.length > 0) {
+                if (countEl) countEl.textContent = collected.length + ' item' + (collected.length > 1 ? 's' : '') + ' collected';
+                if (msgEl) msgEl.textContent = 'Open your drawer of collected curiosities';
+            } else {
+                if (countEl) countEl.textContent = 'Drawer is empty';
+                if (msgEl) msgEl.textContent = 'Drag decorations into the basket on sketch pages to collect curiosities';
+            }
         });
     </script>
 </body>

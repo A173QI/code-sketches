@@ -24,8 +24,8 @@ body {
     position: fixed;
     top: 50%;
     left: 50%;
-    width: 100vh;
-    height: 100vw;
+    width: 120vh;
+    height: 120vw;
     transform: translate(-50%, -50%) rotate(-90deg);
     background-image: url('../../assets/SCAN_1.jpg');
     background-size: cover;

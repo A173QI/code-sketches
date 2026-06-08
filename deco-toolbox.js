@@ -131,6 +131,8 @@
     let assetPrefix = '../../assets/';
     let hoveredEl = null;
     let saveTimeout = null;
+    let startBlowingRef = null;
+    let stopBlowingRef = null;
 
     const detectPrefix = () => {
         const firstDeco = document.querySelector('.deco-img');
@@ -200,6 +202,11 @@
                 /* Slide into view and rotate to active position */
                 transform: translate(-20px, -20px) rotate(0deg);
                 filter: drop-shadow(8px 16px 24px rgba(0,0,0,0.35));
+            }
+            #leaf-blower-container.dragging #leaf-blower {
+                /* Grabbing/dragging points straight up */
+                transform: translate(-20px, -20px) rotate(-90deg) !important;
+                filter: drop-shadow(8px 16px 24px rgba(0,0,0,0.35)) !important;
             }
             #leaf-blower-label {
                 position: fixed;
@@ -287,6 +294,7 @@
     let activeDragEl = null;
     let startX = 0, startY = 0;
     let elemStartX = 0, elemStartY = 0;
+    let dragOffsetX = 0, dragOffsetY = 0;
     let contentRect = null;
 
     const onMouseDown = (e) => {
@@ -298,12 +306,12 @@
         if (img.id === 'leaf-blower') {
             activeDragEl = document.getElementById('leaf-blower-container');
             activeDragEl.classList.add('dragging');
-            const rect = activeDragEl.getBoundingClientRect();
-            elemStartX = rect.left;
-            elemStartY = rect.top;
+            if (startBlowingRef) startBlowingRef();
         } else {
             activeDragEl = img;
             activeDragEl.classList.add('dragging');
+            dragOffsetX = 0;
+            dragOffsetY = 0;
             
             const basket = document.getElementById('drag-basket-container');
             if (basket) {
@@ -333,13 +341,27 @@
         let newLeft = elemStartX + deltaX;
         let newTop = elemStartY + deltaY;
 
+        // For leaf blower: pin top-center of container to cursor
+        if (activeDragEl.id === 'leaf-blower-container') {
+            activeDragEl.style.position = 'fixed';
+            newLeft = e.clientX - 200; // half container width (400/2)
+            newTop = e.clientY;
+        }
         activeDragEl.style.left = newLeft + 'px';
         activeDragEl.style.top = newTop + 'px';
         activeDragEl.style.right = 'auto';
         activeDragEl.style.bottom = 'auto';
 
-        // Check if cursor is over basket (only for stamps!)
-        if (activeDragEl.id !== 'leaf-blower-container') {
+        if (activeDragEl.id === 'leaf-blower-container') {
+            // Let the leaf blower label follow the cursor and remain visible during drag
+            const label = document.getElementById('leaf-blower-label');
+            if (label) {
+                label.style.display = 'block';
+                label.style.left = e.clientX + 'px';
+                label.style.top = e.clientY + 'px';
+            }
+        } else {
+            // Check if cursor is over basket (only for stamps!)
             const basket = document.getElementById('drag-basket-container');
             if (basket) {
                 const bRect = basket.getBoundingClientRect();
@@ -361,6 +383,15 @@
             if (el.id === 'leaf-blower-container') {
                 document.removeEventListener('mousemove', onMouseMove);
                 document.removeEventListener('mouseup', onMouseUp);
+                if (stopBlowingRef) stopBlowingRef();
+                const label = document.getElementById('leaf-blower-label');
+                if (label) label.style.display = 'none';
+                // Reset to initial CSS position (bottom-right corner)
+                el.style.left = '';
+                el.style.top = '';
+                el.style.right = '0';
+                el.style.bottom = '0';
+                el.style.position = 'fixed';
                 return;
             }
 
@@ -394,12 +425,12 @@
         if (img.id === 'leaf-blower') {
             activeDragEl = document.getElementById('leaf-blower-container');
             activeDragEl.classList.add('dragging');
-            const rect = activeDragEl.getBoundingClientRect();
-            elemStartX = rect.left;
-            elemStartY = rect.top;
+            if (startBlowingRef) startBlowingRef();
         } else {
             activeDragEl = img;
             activeDragEl.classList.add('dragging');
+            dragOffsetX = 0;
+            dragOffsetY = 0;
             
             const basket = document.getElementById('drag-basket-container');
             if (basket) {
@@ -432,13 +463,25 @@
         let newLeft = elemStartX + deltaX;
         let newTop = elemStartY + deltaY;
 
+        if (activeDragEl.id === 'leaf-blower-container') {
+            activeDragEl.style.position = 'fixed';
+            newLeft = touch.clientX - 200;
+            newTop = touch.clientY;
+        }
         activeDragEl.style.left = newLeft + 'px';
         activeDragEl.style.top = newTop + 'px';
         activeDragEl.style.right = 'auto';
         activeDragEl.style.bottom = 'auto';
 
-        // Check if touch is over basket (only for stamps!)
-        if (activeDragEl.id !== 'leaf-blower-container') {
+        if (activeDragEl.id === 'leaf-blower-container') {
+            const label = document.getElementById('leaf-blower-label');
+            if (label) {
+                label.style.display = 'block';
+                label.style.left = touch.clientX + 'px';
+                label.style.top = touch.clientY + 'px';
+            }
+        } else {
+            // Check if touch is over basket (only for stamps!)
             const basket = document.getElementById('drag-basket-container');
             if (basket) {
                 const bRect = basket.getBoundingClientRect();
@@ -460,6 +503,15 @@
             if (el.id === 'leaf-blower-container') {
                 document.removeEventListener('touchmove', onTouchMove);
                 document.removeEventListener('touchend', onTouchEnd);
+                if (stopBlowingRef) stopBlowingRef();
+                const label = document.getElementById('leaf-blower-label');
+                if (label) label.style.display = 'none';
+                // Reset to initial CSS position (bottom-right corner)
+                el.style.left = '';
+                el.style.top = '';
+                el.style.right = '0';
+                el.style.bottom = '0';
+                el.style.position = 'fixed';
                 return;
             }
 
@@ -746,12 +798,14 @@
 
         // Let label follow cursor inside container
         blowerContainer.addEventListener('mousemove', (e) => {
+            if (activeDragEl === blowerContainer) return; // Managed by global mousemove!
             label.style.display = 'block';
             label.style.left = e.clientX + 'px';
             label.style.top = e.clientY + 'px';
         });
 
         blowerContainer.addEventListener('mouseleave', () => {
+            if (activeDragEl === blowerContainer) return; // Keep label visible if dragging!
             label.style.display = 'none';
         });
 
@@ -771,6 +825,9 @@
             debouncedSave(); // Overwrite file on disk when blowing stops!
         };
 
+        startBlowingRef = startBlowing;
+        stopBlowingRef = stopBlowing;
+
         const runBlowingLoop = () => {
             if (!isBlowing) return;
 
@@ -782,8 +839,9 @@
             }
             const cRect = contentContainer.getBoundingClientRect();
 
-            // The nozzle of the leaf blower is at the top-left corner of the blower image
-            const bx = blowerRect.left;
+            // The nozzle of the leaf blower: top-center when dragging/pointing straight up, top-left when hovered/pointing diagonally.
+            const isDragging = blowerContainer.classList.contains('dragging');
+            const bx = isDragging ? (blowerRect.left + blowerRect.width / 2) : blowerRect.left;
             const by = blowerRect.top;
 
             const docImgs = document.querySelectorAll('.deco-img');
@@ -834,7 +892,10 @@
         };
 
         blowerContainer.addEventListener('mouseenter', startBlowing);
-        blowerContainer.addEventListener('mouseleave', stopBlowing);
+        blowerContainer.addEventListener('mouseleave', () => {
+            if (activeDragEl === blowerContainer) return; // Keep blowing if dragging!
+            stopBlowing();
+        });
     };
 
     // 9b. Basket Logic for Secret Collection
