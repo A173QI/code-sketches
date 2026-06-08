@@ -419,7 +419,7 @@
         </div>
         <div class="deco-ed-footer">
             <button class="deco-btn primary" id="deco-add-btn">+ Add Decoration</button>
-            <button class="deco-btn" id="deco-code-btn" style="background:#2274a5; border-color:#2274a5; font-weight:600;">Copy HTML Code</button>
+            <button class="deco-btn" id="deco-save-btn" style="background:#2ecc71; border-color:#27ae60; font-weight:600; color:white;">💾 Save Layout</button>
         </div>
     `;
     document.body.appendChild(panelEl);
@@ -842,8 +842,13 @@
         }, 100);
     });
 
-    // 9. Generate and Copy Code Logic
-    document.getElementById('deco-code-btn').addEventListener('click', () => {
+    // 9. Save and Overwrite layout on disk via Node Server
+    document.getElementById('deco-save-btn').addEventListener('click', () => {
+        const saveBtn = document.getElementById('deco-save-btn');
+        const originalText = saveBtn.innerHTML;
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '💾 Saving...';
+
         const docImgs = document.querySelectorAll('.deco-img');
         let htmlLines = ['        <!-- Background collage decorations (behind papers) -->'];
 
@@ -903,22 +908,83 @@
 
         const finalCode = htmlLines.join('\n');
         
-        // Show in Modal
-        document.getElementById('deco-modal-code').value = finalCode;
-        document.getElementById('deco-modal-overlay').style.display = 'flex';
+        // Compute relative filepath
+        let relativePath = decodeURIComponent(window.location.pathname);
+        if (relativePath.startsWith('/')) {
+            relativePath = relativePath.substring(1);
+        }
+        if (!relativePath) {
+            relativePath = 'index.html'; // fallback
+        }
+
+        // Send POST request to dev server
+        fetch('/save-decorations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                filePath: relativePath,
+                decorHtml: finalCode
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error || 'Server error') });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showToast('Layout overwritten on disk successfully!');
+            } else {
+                throw new Error('Save failed');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Failed to save layout: ' + err.message + '\n\nMake sure you are running the project using `node server.js` and not a standard web server.');
+        })
+        .finally(() => {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalText;
+        });
     });
 
-    // Modal Events
-    document.getElementById('deco-modal-close').addEventListener('click', () => {
-        document.getElementById('deco-modal-overlay').style.display = 'none';
-    });
-    
-    document.getElementById('deco-modal-copy').addEventListener('click', () => {
-        const textarea = document.getElementById('deco-modal-code');
-        textarea.select();
-        document.execCommand('copy');
-        alert('HTML code copied to clipboard!');
-    });
+    // Helper to show a toast message
+    const showToast = (msg) => {
+        const toast = document.createElement('div');
+        toast.style.position = 'fixed';
+        toast.style.bottom = '30px';
+        toast.style.left = '50%';
+        toast.style.transform = 'translateX(-50%) translateY(100px)';
+        toast.style.background = '#2ecc71';
+        toast.style.color = 'white';
+        toast.style.padding = '12px 24px';
+        toast.style.borderRadius = '30px';
+        toast.style.fontFamily = "'Outfit', sans-serif";
+        toast.style.fontSize = '0.95rem';
+        toast.style.fontWeight = '500';
+        toast.style.boxShadow = '0 10px 30px rgba(46, 204, 113, 0.4)';
+        toast.style.zIndex = '1000000';
+        toast.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        toast.innerText = msg;
+
+        document.body.appendChild(toast);
+        
+        // Trigger slide up
+        setTimeout(() => {
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+        }, 100);
+
+        // Slide down and remove
+        setTimeout(() => {
+            toast.style.transform = 'translateX(-50%) translateY(100px)';
+            setTimeout(() => {
+                toast.remove();
+            }, 400);
+        }, 3000);
+    };
 
     // 10. Sidebar Toggle and Panel Toggle Controls
     toggleBtn.addEventListener('click', () => {
