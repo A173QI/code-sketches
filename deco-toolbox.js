@@ -156,8 +156,8 @@
             position: fixed;
             bottom: 0;
             right: 0;
-            width: 200px;
-            height: 200px;
+            width: 320px;
+            height: 320px;
             z-index: 1000000;
             pointer-events: auto;
             background: transparent;
@@ -167,14 +167,14 @@
             overflow: visible;
         }
         #leaf-blower {
-            width: 150px;
-            height: 150px;
+            width: 260px;
+            height: 260px;
             object-fit: contain;
             cursor: pointer;
             pointer-events: auto;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            /* Slide-hidden off screen by default, rotated */
-            transform: translate(65px, 65px) rotate(45deg);
+            /* Slide-hidden off screen by default, rotated but slightly visible */
+            transform: translate(125px, 125px) rotate(45deg);
             transform-origin: bottom right;
             outline: none !important;
             border: none !important;
@@ -182,8 +182,8 @@
         }
         #leaf-blower-container:hover #leaf-blower {
             /* Slide into view and rotate to active position */
-            transform: translate(-10px, -10px) rotate(0deg);
-            filter: drop-shadow(6px 12px 20px rgba(0,0,0,0.35));
+            transform: translate(-15px, -15px) rotate(0deg);
+            filter: drop-shadow(8px 16px 24px rgba(0,0,0,0.35));
         }
         #leaf-blower-label {
             position: fixed;
