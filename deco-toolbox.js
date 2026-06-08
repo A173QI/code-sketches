@@ -189,18 +189,19 @@
             position: fixed;
             pointer-events: none;
             z-index: 1000001;
-            background: rgba(19, 27, 35, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #e9f1f7;
-            padding: 6px 12px;
-            border-radius: 20px;
+            background-image: url('${assetPrefix}PaperMix-Kraft-09.png');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            filter: grayscale(1) brightness(1.2) contrast(1.1);
+            color: #131b23;
+            padding: 8px 18px;
             font-family: 'Outfit', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 500;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
             display: none;
             white-space: nowrap;
-            transform: translate(-50%, -140%);
+            transform: translate(-50%, -140%) rotate(-2deg);
         }
 
         /* Drag Basket styles */
@@ -242,23 +243,25 @@
         #drag-basket-label {
             position: absolute;
             bottom: -5px;
-            background: rgba(19, 27, 35, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #e9f1f7;
-            padding: 5px 14px;
-            border-radius: 20px;
+            background-image: url('${assetPrefix}PaperMix-Kraft-09.png');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            filter: grayscale(1) brightness(1.2) contrast(1.1);
+            color: #131b23;
+            padding: 8px 18px;
             font-family: 'Outfit', sans-serif;
             font-size: 0.85rem;
-            font-weight: 500;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            font-weight: 600;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
             white-space: nowrap;
             pointer-events: none;
             opacity: 0.9;
-            transition: transform 0.2s ease, background 0.2s ease;
+            transform: rotate(2deg);
+            transition: transform 0.2s ease, filter 0.2s ease;
         }
         #drag-basket-container.drag-over #drag-basket-label {
-            transform: scale(1.05);
-            background: #2274a5;
+            transform: scale(1.06) rotate(-1deg);
+            filter: grayscale(0.2) brightness(1.22) contrast(1.15);
         }
     `;
     document.head.appendChild(styleEl);
@@ -288,16 +291,27 @@
 
     const onMouseDown = (e) => {
         const img = e.target.closest('.deco-img');
-        // Prevent drag on leaf blower itself
-        if (!img || img.id === 'leaf-blower' || img.id === 'drag-basket-img') return;
+        if (!img || img.id === 'drag-basket-img') return;
 
         e.preventDefault();
-        activeDragEl = img;
-        activeDragEl.classList.add('dragging');
 
-        const basket = document.getElementById('drag-basket-container');
-        if (basket) {
-            basket.classList.add('show-basket');
+        if (img.id === 'leaf-blower') {
+            activeDragEl = document.getElementById('leaf-blower-container');
+            activeDragEl.classList.add('dragging');
+            const rect = activeDragEl.getBoundingClientRect();
+            elemStartX = rect.left;
+            elemStartY = rect.top;
+        } else {
+            activeDragEl = img;
+            activeDragEl.classList.add('dragging');
+            
+            const basket = document.getElementById('drag-basket-container');
+            if (basket) {
+                basket.classList.add('show-basket');
+            }
+            
+            elemStartX = activeDragEl.offsetLeft;
+            elemStartY = activeDragEl.offsetTop;
         }
 
         const contentContainer = document.querySelector('.sketch-content');
@@ -305,11 +319,6 @@
 
         startX = e.clientX;
         startY = e.clientY;
-
-        // BUG FIX: Use offsetLeft and offsetTop directly (un-transformed layout pixels)
-        // to prevent jumps from percentage values, right positioning, or rotation transforms.
-        elemStartX = activeDragEl.offsetLeft;
-        elemStartY = activeDragEl.offsetTop;
 
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
@@ -329,20 +338,32 @@
         activeDragEl.style.right = 'auto';
         activeDragEl.style.bottom = 'auto';
 
-        // Check if cursor is over basket
-        const basket = document.getElementById('drag-basket-container');
-        if (basket) {
-            const bRect = basket.getBoundingClientRect();
-            if (e.clientX >= bRect.left && e.clientX <= bRect.right && e.clientY >= bRect.top && e.clientY <= bRect.bottom) {
-                basket.classList.add('drag-over');
-            } else {
-                basket.classList.remove('drag-over');
+        // Check if cursor is over basket (only for stamps!)
+        if (activeDragEl.id !== 'leaf-blower-container') {
+            const basket = document.getElementById('drag-basket-container');
+            if (basket) {
+                const bRect = basket.getBoundingClientRect();
+                if (e.clientX >= bRect.left && e.clientX <= bRect.right && e.clientY >= bRect.top && e.clientY <= bRect.bottom) {
+                    basket.classList.add('drag-over');
+                } else {
+                    basket.classList.remove('drag-over');
+                }
             }
         }
     };
 
     const onMouseUp = (e) => {
         if (activeDragEl) {
+            const el = activeDragEl;
+            el.classList.remove('dragging');
+            activeDragEl = null;
+
+            if (el.id === 'leaf-blower-container') {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                return;
+            }
+
             const basket = document.getElementById('drag-basket-container');
             let putInBasket = false;
             if (basket) {
@@ -352,10 +373,6 @@
                 basket.classList.remove('show-basket');
                 basket.classList.remove('drag-over');
             }
-
-            const el = activeDragEl;
-            el.classList.remove('dragging');
-            activeDragEl = null;
 
             if (putInBasket) {
                 collectObject(el);
@@ -370,15 +387,27 @@
     // Touch Support for Mobile Dragging (Fixing Jump bug)
     const onTouchStart = (e) => {
         const img = e.target.closest('.deco-img');
-        if (!img || img.id === 'leaf-blower' || img.id === 'drag-basket-img') return;
+        if (!img || img.id === 'drag-basket-img') return;
 
         e.preventDefault();
-        activeDragEl = img;
-        activeDragEl.classList.add('dragging');
 
-        const basket = document.getElementById('drag-basket-container');
-        if (basket) {
-            basket.classList.add('show-basket');
+        if (img.id === 'leaf-blower') {
+            activeDragEl = document.getElementById('leaf-blower-container');
+            activeDragEl.classList.add('dragging');
+            const rect = activeDragEl.getBoundingClientRect();
+            elemStartX = rect.left;
+            elemStartY = rect.top;
+        } else {
+            activeDragEl = img;
+            activeDragEl.classList.add('dragging');
+            
+            const basket = document.getElementById('drag-basket-container');
+            if (basket) {
+                basket.classList.add('show-basket');
+            }
+            
+            elemStartX = activeDragEl.offsetLeft;
+            elemStartY = activeDragEl.offsetTop;
         }
 
         const contentContainer = document.querySelector('.sketch-content');
@@ -387,10 +416,6 @@
         const touch = e.touches[0];
         startX = touch.clientX;
         startY = touch.clientY;
-
-        // BUG FIX: Use offsetLeft and offsetTop directly
-        elemStartX = activeDragEl.offsetLeft;
-        elemStartY = activeDragEl.offsetTop;
 
         document.addEventListener('touchmove', onTouchMove, { passive: false });
         document.addEventListener('touchend', onTouchEnd);
@@ -412,20 +437,32 @@
         activeDragEl.style.right = 'auto';
         activeDragEl.style.bottom = 'auto';
 
-        // Check if touch is over basket
-        const basket = document.getElementById('drag-basket-container');
-        if (basket) {
-            const bRect = basket.getBoundingClientRect();
-            if (touch.clientX >= bRect.left && touch.clientX <= bRect.right && touch.clientY >= bRect.top && touch.clientY <= bRect.bottom) {
-                basket.classList.add('drag-over');
-            } else {
-                basket.classList.remove('drag-over');
+        // Check if touch is over basket (only for stamps!)
+        if (activeDragEl.id !== 'leaf-blower-container') {
+            const basket = document.getElementById('drag-basket-container');
+            if (basket) {
+                const bRect = basket.getBoundingClientRect();
+                if (touch.clientX >= bRect.left && touch.clientX <= bRect.right && touch.clientY >= bRect.top && touch.clientY <= bRect.bottom) {
+                    basket.classList.add('drag-over');
+                } else {
+                    basket.classList.remove('drag-over');
+                }
             }
         }
     };
 
     const onTouchEnd = () => {
         if (activeDragEl) {
+            const el = activeDragEl;
+            el.classList.remove('dragging');
+            activeDragEl = null;
+
+            if (el.id === 'leaf-blower-container') {
+                document.removeEventListener('touchmove', onTouchMove);
+                document.removeEventListener('touchend', onTouchEnd);
+                return;
+            }
+
             const basket = document.getElementById('drag-basket-container');
             let putInBasket = false;
             if (basket) {
@@ -435,10 +472,6 @@
                 basket.classList.remove('show-basket');
                 basket.classList.remove('drag-over');
             }
-
-            const el = activeDragEl;
-            el.classList.remove('dragging');
-            activeDragEl = null;
 
             if (putInBasket) {
                 collectObject(el);
