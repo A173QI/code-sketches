@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractal Tree — Creative code</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../../sketch.css">
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Experiments</a>
+    <script src="../../p5.js"></script>
+    <script src="fractaltree.js"></script>
+
+    <main class="sketch-page">
+        <div class="scan-overlay" aria-hidden="true">
+            <img src="../../assets/PaperMix-Kraft-25-thumb.png" alt="">
+        </div>
+        
+        <div class="sketch-content sketch-content--alt">
+        <!-- Background collage decorations (behind papers) -->
+        <img src="../../assets/vintage-img_0015_Layer-11_v.png" class="deco-img deco-pos-1" style="--deco-rotation: 15deg; width: 104px; top: 73px; left: -34px;" alt="" aria-hidden="true">
+        <img src="../../assets/tea_bag_12_hv.png" class="deco-img deco-pos-2" style="--deco-rotation: -2deg; width: 114px; top: 298px; left: 27.6%;" alt="" aria-hidden="true">
+        <img src="../../assets/vintage-img_0008_Layer-3.png" class="deco-img deco-pos-3" style="--deco-rotation: -22deg; width: 94px; top: 133px; left: 66.9%;" alt="" aria-hidden="true">
+        <img src="../../assets/vintage-img_0013_Layer-9_hv.png" class="deco-img deco-pos-4" style="--deco-rotation: -2deg; width: 90px; top: 494px; right: -37px;" alt="" aria-hidden="true">
+            <h1 class="sketch-title">Fractal Tree</h1>
+
+            <!-- Code panel (left) -->
+            <div class="sketch-code-panel">
+                <pre class="sketch-code">function branch(len) {
+    // Draw the branch line
+    line(0, 0, 0, -len);
+
+    // Move to the end of that branch
+    translate(0, -len);
+
+    // Shrink the branch length
+    len *= 0.67;
+
+    // Recursive base case:
+    // stop when length is too small
+    if (len > 6) {
+        push();
+        rotate(angle);  // Rotate right
+        branch(len);     // Draw branch
+        pop();
+
+        push();
+        rotate(-angle); // Rotate left
+        branch(len);    // Draw branch
+        pop();
+    }
+}</pre>
+            </div>
+
+            <!-- Screenshot panel (center) -->
+            <div class="sketch-screenshot-panel">
+                <div class="sketch-screenshot-wrapper">
+                    <img src="../../assets/fractaltree.png" alt="Fractal Tree" class="sketch-screenshot">
+                </div>
+                <span class="sketch-screenshot-label">My Canva</span>
+            </div>
+
+            <!-- Description panel (right) -->
+            <div class="sketch-description-panel">
+                <div class="sketch-description">
+                    <p>Un <b>arbre fractal récursif</b> dessiné depuis le bas du canvas. La position horizontale de la souris contrôle l'<b>angle de ramification</b>.</p>
+                    <p>Chaque branche se divise en <b>deux sous-branches</b> avec une longueur réduite de <b>33%</b> (<code>len *= 0.67</code>). La fonction <b>branch()</b> s'appelle elle-même deux fois : une fois avec <code>rotate(angle)</code> et une fois avec <code>rotate(-angle)</code>.</p>
+                    <p>La <b>récursion s'arrête</b> quand la longueur devient inférieure à <b>6 pixels</b> — c'est le <em>cas de base</em> qui empêche une boucle infinie.</p>
+                    <p><code>push()</code> et <code>pop()</code> sauvegardent et restaurent l'état de transformation, pour que chaque branche parte du bon endroit.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    
+    
+    
+    <!-- Custom presentation script to embed live running sketches/widgets inside paper frame -->
+    <script>
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var canvas = document.querySelector('canvas');
+                var wrapper = document.querySelector('.sketch-screenshot-wrapper');
+                
+                // 1. Move p5.js canvas if present
+                if (canvas && wrapper) {
+                    wrapper.innerHTML = ''; 
+                    wrapper.appendChild(canvas);
+                    canvas.style.display = 'block';
+                    canvas.style.position = 'relative';
+                    canvas.style.width = '100%';
+                    canvas.style.height = '100%';
+                    
+                    var resizeCanvas = function() {
+                        var w = wrapper.clientWidth;
+                        var h = wrapper.clientHeight;
+                        canvas.style.width = w + 'px';
+                        canvas.style.height = h + 'px';
+                    };
+                    window.addEventListener('resize', resizeCanvas);
+                    resizeCanvas();
+                }
+                
+                // 2. Move HTML widgets if present
+                var flipInteractive = document.querySelector('.flip-interactive');
+                var strategyContainer = document.getElementById('strategy-container');
+                if (wrapper) {
+                    if (flipInteractive) {
+                        wrapper.innerHTML = '';
+                        wrapper.appendChild(flipInteractive);
+                        flipInteractive.style.padding = '0';
+                        flipInteractive.style.minHeight = 'auto';
+                        flipInteractive.style.transform = 'none';
+                        flipInteractive.style.boxShadow = 'none';
+                        flipInteractive.style.background = 'none';
+                        var h1 = flipInteractive.querySelector('h1');
+                        if (h1) h1.style.fontSize = '1.25rem';
+                    } else if (strategyContainer) {
+                        wrapper.innerHTML = '';
+                        wrapper.appendChild(strategyContainer);
+                        strategyContainer.style.padding = '0';
+                        strategyContainer.style.minHeight = 'auto';
+                        strategyContainer.style.transform = 'none';
+                        strategyContainer.style.boxShadow = 'none';
+                        strategyContainer.style.background = 'none';
+                        var h1 = strategyContainer.querySelector('h1');
+                        if (h1) h1.style.fontSize = '1.25rem';
+                        var strategyText = document.getElementById('strategy');
+                        if (strategyText) {
+                            strategyText.style.fontSize = '3.5rem';
+                            strategyText.style.aspectRatio = 'auto';
+                            strategyText.style.margin = '1rem 0';
+                        }
+                    }
+                }
+
+                // 3. Pointer-following parallax for paper elements
+                const papers = [
+                    { el: document.querySelector('.sketch-code-panel'), r: -1.5, mx: 12, my: 8 },
+                    { el: document.querySelector('.sketch-screenshot-panel'), r: 2, mx: -8, my: 12 },
+                    { el: document.querySelector('.sketch-description-panel'), r: 1.2, mx: 10, my: -6 },
+                    { el: document.querySelector('.flip-interactive, .words-interactive, .typoexp-interactive'), r: -1, mx: 6, my: -8 }
+                ];
+                
+                let pTargetX = 0, pTargetY = 0;
+                let pCurrentX = 0, pCurrentY = 0;
+                
+                window.addEventListener('mousemove', function(e) {
+                    pTargetX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+                    pTargetY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+                });
+                
+                function updateParallax() {
+                    pCurrentX += (pTargetX - pCurrentX) * 0.08;
+                    pCurrentY += (pTargetY - pCurrentY) * 0.08;
+                    
+                    papers.forEach(function(paper) {
+                        if (paper.el) {
+                            const tx = pCurrentX * paper.mx;
+                            const ty = pCurrentY * paper.my;
+                            const rot = paper.r + pCurrentX * 1;
+                            paper.el.style.transform = 'translate3d(' + tx + 'px, ' + ty + 'px, 0) rotate(' + rot + 'deg)';
+                        }
+                    });
+                    
+                    requestAnimationFrame(updateParallax);
+                }
+                
+                papers.forEach(function(paper) {
+                    if (paper.el) {
+                        paper.el.style.transition = 'none';
+                    }
+                });
+                
+                updateParallax();
+            }, 150);
+        });
+    </script>
+
+
+
+</body>
+</html>

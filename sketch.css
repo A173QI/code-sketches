@@ -1,0 +1,339 @@
+/* Import Google Font Outfit */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700&display=swap');
+
+body {
+    min-height: 100vh;
+    margin: 0 auto !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 4rem;
+    box-sizing: border-box;
+    background-color: #e9f1f7;
+    color: #131b23;
+    font-family: 'Outfit', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* global scan overlay */
+.scan-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100vh;
+    height: 100vw;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    background-image: url('../../assets/SCAN_1.jpg');
+    background-size: cover;
+    background-position: center;
+    mix-blend-mode: exclusion;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.85;
+}
+
+.scan-overlay img {
+    display: none;
+}
+
+/* Back link */
+.back-link {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 1.1rem;
+    color: #e9f1f7;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.2s, transform 0.2s;
+    z-index: 1000;
+}
+
+.back-link:hover {
+    color: #ffffff;
+    transform: translateX(-3px);
+}
+
+/* main sketch page layout */
+.sketch-page {
+    width: 100%;
+    max-width: 1600px;
+    margin-top: 4rem;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.sketch-content {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap: 3rem;
+    width: 100%;
+    align-items: flex-start;
+    margin-top: 2rem;
+}
+
+/* Title */
+.sketch-title {
+    grid-column: 1 / -1;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 200;
+    font-size: 5.8rem; /* 94px */
+    color: #ffffff;
+    margin: 0 0 1rem 0;
+    line-height: 1;
+}
+
+/* Code panel (left) */
+.sketch-code-panel {
+    background-image: url('../../assets/PaperMix-Kraft-09.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    padding: 5rem 3rem;
+    box-sizing: border-box;
+    filter: grayscale(1) brightness(1.2) contrast(1.15);
+    mix-blend-mode: hard-light;
+    transform: rotate(-1.5deg);
+    min-height: 500px;
+    box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.15);
+}
+
+.sketch-code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #131b23;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 550px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+/* Scrollbar styles for code */
+.sketch-code::-webkit-scrollbar {
+    width: 6px;
+}
+.sketch-code::-webkit-scrollbar-track {
+    background: transparent;
+}
+.sketch-code::-webkit-scrollbar-thumb {
+    background: rgba(19, 27, 35, 0.2);
+    border-radius: 3px;
+}
+
+/* Canvas/Screenshot panel (center) */
+.sketch-screenshot-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    transform: rotate(2deg);
+    margin-top: 2rem;
+}
+
+.sketch-screenshot-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    aspect-ratio: 1 / 1;
+    background-image: url('../../assets/PaperMix-Kraft-04.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    padding: 10%;
+    box-sizing: border-box;
+    filter: grayscale(1) brightness(1.2) contrast(1.1);
+    mix-blend-mode: hard-light;
+    box-shadow: 0px 8px 35px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sketch-screenshot {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* p5js canvas styled inside the paper wrapper */
+.sketch-screenshot-wrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 2px;
+}
+
+.sketch-screenshot-label {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    font-size: 1.5rem;
+    color: #131b23;
+    background-image: url('../../assets/PaperMix-Kraft-09.png');
+    background-size: 100% 100%;
+    padding: 0.5rem 2rem;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.15);
+    transform: rotate(-3deg);
+}
+
+/* Description panel (right) */
+.sketch-description-panel {
+    background-image: url('../../assets/PaperMix-Kraft-16.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    padding: 5rem 3rem;
+    box-sizing: border-box;
+    filter: grayscale(1) brightness(1.25) contrast(1.1);
+    mix-blend-mode: hard-light;
+    transform: rotate(1.2deg);
+    min-height: 400px;
+    box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.15);
+    margin-top: 4rem;
+}
+
+.sketch-description {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    font-size: 1.3rem;
+    line-height: 1.6;
+    color: #131b23;
+}
+
+.sketch-description b, 
+.sketch-description strong {
+    font-weight: 600;
+}
+
+/* Interactive section for HTML sketches (like Flip Colors) */
+.flip-interactive, 
+.words-interactive,
+.typoexp-interactive {
+    grid-column: 1 / -1;
+    background-image: url('../../assets/PaperMix-Kraft-07.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    padding: 4rem;
+    box-sizing: border-box;
+    filter: grayscale(1) brightness(1.2) contrast(1.1);
+    mix-blend-mode: hard-light;
+    box-shadow: 0px 8px 30px rgba(0,0,0,0.15);
+    margin-bottom: 2rem;
+    transform: rotate(-1deg);
+    width: 100%;
+    max-width: 600px;
+    align-self: center;
+}
+
+/* Responsive details */
+@media (max-width: 1200px) {
+    .sketch-content {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+    .sketch-code-panel,
+    .sketch-screenshot-panel,
+    .sketch-description-panel {
+        max-width: 600px;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* --- Performance Optimizations (GPU Compositor Isolation) --- */
+.scan-overlay,
+.scan-overlay-global {
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translate3d(-50%, -50%, 0) rotate(-90deg); /* Hardware accelerated */
+}
+
+.sketch-code-panel,
+.sketch-screenshot-panel,
+.sketch-description-panel,
+.flip-interactive,
+.words-interactive,
+.typoexp-interactive {
+    will-change: transform;
+}
+
+/* --- Accessibility & Text Contrast Overrides --- */
+/* Ensure elements inside the white paper wrapper always remain dark gunmetal regardless of page background color flips */
+.sketch-screenshot-wrapper,
+.sketch-screenshot-wrapper * {
+    color: #131b23 !important;
+}
+
+/* Fuckwords generated text styling to fit inside the paper wrapper nicely */
+#strategy {
+    font-size: 2.2rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    color: #131b23 !important;
+    line-height: 1.2 !important;
+    word-break: break-all;
+    margin: 1.5rem 0 !important;
+}
+
+/* Buttons inside the paper wrapper */
+.sketch-screenshot-wrapper button {
+    font-family: 'Outfit', sans-serif !important;
+    border-radius: 4px !important;
+    background-color: #131b23 !important;
+    color: #E9F1F7 !important;
+    padding: 0.6rem 1.2rem !important;
+    font-size: 1rem !important;
+    transition: transform 0.15s ease, background-color 0.15s ease !important;
+}
+
+.sketch-screenshot-wrapper button:hover {
+    background-color: #2274a5 !important;
+    transform: translateY(-2px) !important;
+}
+
+/* --- Background Collage Decorations --- */
+.deco-img {
+    position: absolute;
+    z-index: 1; /* Behind the papers (which are relative/transformed and stack above) */
+    height: auto;
+    opacity: 0.75;
+    pointer-events: auto; /* Allow hover */
+    transform: rotate(var(--deco-rotation, 0deg)) scale(1);
+    transform-origin: center center;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+    will-change: transform;
+}
+
+.deco-img:hover {
+    transform: rotate(var(--deco-rotation, 0deg)) scale(1.15) !important;
+    opacity: 0.98;
+    z-index: 5;
+}
+
+/* Ensure grid container is relative so absolute child positioning aligns with columns */
+.sketch-content {
+    position: relative;
+}
+
+/* Position classes for structural clarity (coordinates set inline for random variation) */
+.deco-pos-1, .deco-pos-2, .deco-pos-3, .deco-pos-4 {
+    display: block;
+}
+
+/* Responsive adjustments: hide stamps on tablet/mobile to avoid overlapping text layouts */
+@media (max-width: 1050px) {
+    .deco-img {
+        display: none !important;
+    }
+}

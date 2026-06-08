@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuckwords (18+) — Creative code</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../../sketch.css">
+
+    <style>
+        #strategy-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 2rem;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        #strategy-container h1 {
+            margin: 0;
+            text-transform: uppercase;
+            color: var(--color-primary);
+        }
+
+        #strategy {
+            font-size: 12rem;
+            text-align: center;
+            width: 100%;
+            aspect-ratio: 16/9;
+            border: 0px solid var(--color-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            margin: 0;
+            box-sizing: border-box;
+            transition: opacity 0.15s ease, transform 0.15s ease, filter 0.15s ease;
+        }
+
+        #button {
+            font-size: 2rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 0.8rem 1.8rem;
+            background: var(--color-primary);
+            color: var(--color-bg);
+            cursor: pointer;
+            border: none;
+        }
+
+        #button:hover {
+            background: var(--color-text);
+            color: var(--color-bg);
+            transform: translateY(-2px);
+        }
+
+        #button:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Experiments</a>
+
+    <!-- Interactive section -->
+    <div id="strategy-container">
+        <p id="strategy"></p>
+        <button id="button">⌘ R</button>
+    </div>
+
+    <script src="../p5js/fuckwords.js"></script>
+
+    <!-- Sketch presentation section -->
+    <main class="sketch-page">
+        <div class="scan-overlay" aria-hidden="true">
+            <img src="../../assets/PaperMix-Kraft-25-thumb.png" alt="">
+        </div>
+        
+        <div class="sketch-content sketch-content--alt">
+        <!-- Background collage decorations (behind papers) -->
+        <img src="../../assets/vintage-img_0015_Layer-11_hv.png" class="deco-img deco-pos-1" style="--deco-rotation: 1deg; width: 104px; top: 137px; left: -24px;" alt="" aria-hidden="true">
+        <img src="../../assets/vintage-img_0026_Layer-16_h.png" class="deco-img deco-pos-2" style="--deco-rotation: -25deg; width: 94px; top: 291px; left: 27.7%;" alt="" aria-hidden="true">
+        <img src="../../assets/vintage-img_0000_Layer-30_v.png" class="deco-img deco-pos-3" style="--deco-rotation: 14deg; width: 100px; top: 226px; left: 67.4%;" alt="" aria-hidden="true">
+        <img src="../../assets/vintage-img_0008_Layer-3_v.png" class="deco-img deco-pos-4" style="--deco-rotation: 4deg; width: 90px; top: 467px; right: -33px;" alt="" aria-hidden="true">
+            <h1 class="sketch-title">Fuckwords (18+)</h1>
+
+            <!-- Code panel (left) -->
+            <div class="sketch-code-panel">
+                <pre class="sketch-code">const Strategies = [
+    "Fuck", "Shit", "Bitch",
+    "Ass", "Dogshit", "Pussy",
+    "Damn", "Bastard", "Bullshit",
+    "Wavefuck", "Flowshit",
+    "Sparkass", "Edgefuck",
+    "Clusterfuck", "Pileofshit",
+    "Colorfuck", "Deepfuck",
+    // ... 82 mots au total
+];
+
+let lastIndex = -1;
+
+function getNewWord() {
+    let randomIndex;
+    do {
+        randomIndex = Math.floor(
+          Math.random() * Strategies.length
+        );
+    } while (
+      randomIndex === lastIndex
+      &amp;&amp; Strategies.length &gt; 1
+    );
+
+    lastIndex = randomIndex;
+    const newWord = Strategies[randomIndex];
+
+    strategy.style.opacity = "0";
+    strategy.style.filter = "blur(4px)";
+
+    setTimeout(() =&gt; {
+        strategy.innerHTML = newWord;
+        strategy.style.opacity = "1";
+        strategy.style.filter = "blur(0)";
+    }, 150);
+}</pre>
+            </div>
+
+            <!-- Screenshot panel (center) -->
+            <div class="sketch-screenshot-panel">
+                <div class="sketch-screenshot-wrapper">
+                    <img src="../../assets/fuckwords.png" alt="Fuckwords (18+)" class="sketch-screenshot">
+                </div>
+                <span class="sketch-screenshot-label">My Canva</span>
+            </div>
+
+            <!-- Description panel (right) -->
+            <div class="sketch-description-panel">
+                <div class="sketch-description">
+                    <b>Générateur de mots aléatoires</b> provocateurs. Un tableau de <b>82 mots composés</b> mélange insultes classiques et néologismes absurdes (« Clusterfuck », « Sparkass », « Colorfuck »…). À chaque clic sur le bouton, la fonction <b>getNewWord</b> tire un index au hasard — en s'assurant de <b>ne jamais répéter</b> le mot précédent grâce à une boucle <b>do…while</b>. Le mot actuel disparaît avec un <b>fondu + flou</b> (opacity → 0, blur → 4px), puis après <b>150 ms</b> le nouveau mot apparaît en fondu inverse. Simple, efficace, un peu vulgaire.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    
+    
+    
+    <!-- Custom presentation script to embed live running sketches/widgets inside paper frame -->
+    <script>
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var canvas = document.querySelector('canvas');
+                var wrapper = document.querySelector('.sketch-screenshot-wrapper');
+                
+                // 1. Move p5.js canvas if present
+                if (canvas && wrapper) {
+                    wrapper.innerHTML = ''; 
+                    wrapper.appendChild(canvas);
+                    canvas.style.display = 'block';
+                    canvas.style.position = 'relative';
+                    canvas.style.width = '100%';
+                    canvas.style.height = '100%';
+                    
+                    var resizeCanvas = function() {
+                        var w = wrapper.clientWidth;
+                        var h = wrapper.clientHeight;
+                        canvas.style.width = w + 'px';
+                        canvas.style.height = h + 'px';
+                    };
+                    window.addEventListener('resize', resizeCanvas);
+                    resizeCanvas();
+                }
+                
+                // 2. Move HTML widgets if present
+                var flipInteractive = document.querySelector('.flip-interactive');
+                var strategyContainer = document.getElementById('strategy-container');
+                if (wrapper) {
+                    if (flipInteractive) {
+                        wrapper.innerHTML = '';
+                        wrapper.appendChild(flipInteractive);
+                        flipInteractive.style.padding = '0';
+                        flipInteractive.style.minHeight = 'auto';
+                        flipInteractive.style.transform = 'none';
+                        flipInteractive.style.boxShadow = 'none';
+                        flipInteractive.style.background = 'none';
+                        var h1 = flipInteractive.querySelector('h1');
+                        if (h1) h1.style.fontSize = '1.25rem';
+                    } else if (strategyContainer) {
+                        wrapper.innerHTML = '';
+                        wrapper.appendChild(strategyContainer);
+                        strategyContainer.style.padding = '0';
+                        strategyContainer.style.minHeight = 'auto';
+                        strategyContainer.style.transform = 'none';
+                        strategyContainer.style.boxShadow = 'none';
+                        strategyContainer.style.background = 'none';
+                        var h1 = strategyContainer.querySelector('h1');
+                        if (h1) h1.style.fontSize = '1.25rem';
+                        var strategyText = document.getElementById('strategy');
+                        if (strategyText) {
+                            strategyText.style.fontSize = '3.5rem';
+                            strategyText.style.aspectRatio = 'auto';
+                            strategyText.style.margin = '1rem 0';
+                        }
+                    }
+                }
+
+                // 3. Pointer-following parallax for paper elements
+                const papers = [
+                    { el: document.querySelector('.sketch-code-panel'), r: -1.5, mx: 12, my: 8 },
+                    { el: document.querySelector('.sketch-screenshot-panel'), r: 2, mx: -8, my: 12 },
+                    { el: document.querySelector('.sketch-description-panel'), r: 1.2, mx: 10, my: -6 },
+                    { el: document.querySelector('.flip-interactive, .words-interactive, .typoexp-interactive'), r: -1, mx: 6, my: -8 }
+                ];
+                
+                let pTargetX = 0, pTargetY = 0;
+                let pCurrentX = 0, pCurrentY = 0;
+                
+                window.addEventListener('mousemove', function(e) {
+                    pTargetX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+                    pTargetY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+                });
+                
+                function updateParallax() {
+                    pCurrentX += (pTargetX - pCurrentX) * 0.08;
+                    pCurrentY += (pTargetY - pCurrentY) * 0.08;
+                    
+                    papers.forEach(function(paper) {
+                        if (paper.el) {
+                            const tx = pCurrentX * paper.mx;
+                            const ty = pCurrentY * paper.my;
+                            const rot = paper.r + pCurrentX * 1;
+                            paper.el.style.transform = 'translate3d(' + tx + 'px, ' + ty + 'px, 0) rotate(' + rot + 'deg)';
+                        }
+                    });
+                    
+                    requestAnimationFrame(updateParallax);
+                }
+                
+                papers.forEach(function(paper) {
+                    if (paper.el) {
+                        paper.el.style.transition = 'none';
+                    }
+                });
+                
+                updateParallax();
+            }, 150);
+        });
+    </script>
+
+
+
+</body>
+</html>

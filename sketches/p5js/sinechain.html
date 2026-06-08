@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sine Chain — Creative code</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../../sketch.css">
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Experiments</a>
+    <script src="../../p5.js"></script>
+    <script src="sinechain.js"></script>
+
+    <main class="sketch-page">
+        <div class="scan-overlay" aria-hidden="true">
+            <img src="../../assets/PaperMix-Kraft-25-thumb.png" alt="">
+        </div>
+        
+        <div class="sketch-content sketch-content--alt">
+        <!-- Background collage decorations (behind papers) -->
+        <img src="../../assets/vintage-img_0024_Layer-25.png" class="deco-img deco-pos-1" style="--deco-rotation: -8deg; width: 107px; top: 115px; left: -27px;" alt="" aria-hidden="true">
+        <img src="../../assets/vintage-img_0025_Layer-17.png" class="deco-img deco-pos-2" style="--deco-rotation: -24deg; width: 94px; top: 312px; left: 27.8%;" alt="" aria-hidden="true">
+        <img src="../../assets/vintage-img_0010_Layer-6_v.png" class="deco-img deco-pos-3" style="--deco-rotation: -8deg; width: 88px; top: 187px; left: 66.9%;" alt="" aria-hidden="true">
+        <img src="../../assets/vintage-img_0009_Layer-5_h.png" class="deco-img deco-pos-4" style="--deco-rotation: -20deg; width: 100px; top: 528px; right: -38px;" alt="" aria-hidden="true">
+            <h1 class="sketch-title">Sine Chain</h1>
+
+            <!-- Code panel (left) -->
+            <div class="sketch-code-panel">
+                <pre class="sketch-code">// Shift positions: each segment
+// takes the previous one's place
+for (let i = numSegments - 1; i > 0; i--) {
+    x[i] = x[i - 1];
+    y[i] = y[i - 1];
+}
+
+// The head follows the mouse
+// with a sine wave undulation
+x[0] = mouseX;
+y[0] = mouseY + sin(frameCount * 0.15) * 45;
+
+// Draw with decreasing size
+// and cycling palette colors
+for (let i = 0; i < numSegments; i++) {
+    let size = map(i, 0, numSegments, 45, 8);
+    let col = color(palette[i % palette.length]);
+
+    fill(col);
+    noStroke();
+    ellipse(x[i], y[i], size, size);
+}</pre>
+            </div>
+
+            <!-- Screenshot panel (center) -->
+            <div class="sketch-screenshot-panel">
+                <div class="sketch-screenshot-wrapper">
+                    <img src="../../assets/sinechain.png" alt="Sine Chain" class="sketch-screenshot">
+                </div>
+                <span class="sketch-screenshot-label">My Canva</span>
+            </div>
+
+            <!-- Description panel (right) -->
+            <div class="sketch-description-panel">
+                <div class="sketch-description">
+                    <p>Une <strong>chaîne de 40 cercles</strong> qui suivent la souris en serpentant.</p>
+                    <p>Le premier segment (la « tête ») suit le curseur avec une <strong>ondulation sinusoïdale</strong> : <code>sin(frameCount * 0.15) * 45</code> ajoute un mouvement de vague vertical.</p>
+                    <p>Chaque segment suivant <strong>prend la position du précédent</strong> grâce à une boucle inversée — c'est ce qui crée l'effet de traîne fluide.</p>
+                    <p>La <strong>taille décroît</strong> progressivement du premier au dernier segment avec <code>map()</code>, et les <strong>couleurs cyclent</strong> dans la palette grâce à l'opérateur modulo (<code>i % palette.length</code>).</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    
+    
+    
+    <!-- Custom presentation script to embed live running sketches/widgets inside paper frame -->
+    <script>
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var canvas = document.querySelector('canvas');
+                var wrapper = document.querySelector('.sketch-screenshot-wrapper');
+                
+                // 1. Move p5.js canvas if present
+                if (canvas && wrapper) {
+                    wrapper.innerHTML = ''; 
+                    wrapper.appendChild(canvas);
+                    canvas.style.display = 'block';
+                    canvas.style.position = 'relative';
+                    canvas.style.width = '100%';
+                    canvas.style.height = '100%';
+                    
+                    var resizeCanvas = function() {
+                        var w = wrapper.clientWidth;
+                        var h = wrapper.clientHeight;
+                        canvas.style.width = w + 'px';
+                        canvas.style.height = h + 'px';
+                    };
+                    window.addEventListener('resize', resizeCanvas);
+                    resizeCanvas();
+                }
+                
+                // 2. Move HTML widgets if present
+                var flipInteractive = document.querySelector('.flip-interactive');
+                var strategyContainer = document.getElementById('strategy-container');
+                if (wrapper) {
+                    if (flipInteractive) {
+                        wrapper.innerHTML = '';
+                        wrapper.appendChild(flipInteractive);
+                        flipInteractive.style.padding = '0';
+                        flipInteractive.style.minHeight = 'auto';
+                        flipInteractive.style.transform = 'none';
+                        flipInteractive.style.boxShadow = 'none';
+                        flipInteractive.style.background = 'none';
+                        var h1 = flipInteractive.querySelector('h1');
+                        if (h1) h1.style.fontSize = '1.25rem';
+                    } else if (strategyContainer) {
+                        wrapper.innerHTML = '';
+                        wrapper.appendChild(strategyContainer);
+                        strategyContainer.style.padding = '0';
+                        strategyContainer.style.minHeight = 'auto';
+                        strategyContainer.style.transform = 'none';
+                        strategyContainer.style.boxShadow = 'none';
+                        strategyContainer.style.background = 'none';
+                        var h1 = strategyContainer.querySelector('h1');
+                        if (h1) h1.style.fontSize = '1.25rem';
+                        var strategyText = document.getElementById('strategy');
+                        if (strategyText) {
+                            strategyText.style.fontSize = '3.5rem';
+                            strategyText.style.aspectRatio = 'auto';
+                            strategyText.style.margin = '1rem 0';
+                        }
+                    }
+                }
+
+                // 3. Pointer-following parallax for paper elements
+                const papers = [
+                    { el: document.querySelector('.sketch-code-panel'), r: -1.5, mx: 12, my: 8 },
+                    { el: document.querySelector('.sketch-screenshot-panel'), r: 2, mx: -8, my: 12 },
+                    { el: document.querySelector('.sketch-description-panel'), r: 1.2, mx: 10, my: -6 },
+                    { el: document.querySelector('.flip-interactive, .words-interactive, .typoexp-interactive'), r: -1, mx: 6, my: -8 }
+                ];
+                
+                let pTargetX = 0, pTargetY = 0;
+                let pCurrentX = 0, pCurrentY = 0;
+                
+                window.addEventListener('mousemove', function(e) {
+                    pTargetX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+                    pTargetY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+                });
+                
+                function updateParallax() {
+                    pCurrentX += (pTargetX - pCurrentX) * 0.08;
+                    pCurrentY += (pTargetY - pCurrentY) * 0.08;
+                    
+                    papers.forEach(function(paper) {
+                        if (paper.el) {
+                            const tx = pCurrentX * paper.mx;
+                            const ty = pCurrentY * paper.my;
+                            const rot = paper.r + pCurrentX * 1;
+                            paper.el.style.transform = 'translate3d(' + tx + 'px, ' + ty + 'px, 0) rotate(' + rot + 'deg)';
+                        }
+                    });
+                    
+                    requestAnimationFrame(updateParallax);
+                }
+                
+                papers.forEach(function(paper) {
+                    if (paper.el) {
+                        paper.el.style.transition = 'none';
+                    }
+                });
+                
+                updateParallax();
+            }, 150);
+        });
+    </script>
+
+
+
+</body>
+</html>

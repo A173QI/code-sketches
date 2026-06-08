@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaleidoscope — Creative code</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../../sketch.css">
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← Back to Experiments</a>
+    <script src="../../p5.js"></script>
+    <script src="kaleidoscope.js"></script>
+
+    <main class="sketch-page">
+        <div class="scan-overlay" aria-hidden="true">
+            <img src="../../assets/PaperMix-Kraft-25-thumb.png" alt="">
+        </div>
+        
+        
+    
+        <div class="sketch-content">
+        <!-- Background collage decorations (behind papers) -->
+        <img src="../../assets/burn_mark_4_v.png" class="deco-img deco-pos-1" style="--deco-rotation: 8deg; width: 114px; top: 72px; left: -20px;" alt="" aria-hidden="true">
+        <img src="../../assets/vintage-img_0014_Layer-10.png" class="deco-img deco-pos-2" style="--deco-rotation: 3deg; width: 109px; top: 372px; left: 29.4%;" alt="" aria-hidden="true">
+        <img src="../../assets/dirty_smudge_6_hv.png" class="deco-img deco-pos-3" style="--deco-rotation: -19deg; width: 114px; top: 238px; left: 67.8%;" alt="" aria-hidden="true">
+        <img src="../../assets/vintage-img_0007_Layer-2_h.png" class="deco-img deco-pos-4" style="--deco-rotation: 3deg; width: 121px; top: 531px; right: -37px;" alt="" aria-hidden="true">
+            <h1 class="sketch-title">Kaleidoscope</h1>
+
+            <!-- Code panel (left) -->
+            <div class="sketch-code-panel">
+                <pre class="sketch-code">let symmetry = 8;
+let angle = 360 / symmetry;
+
+if (mouseIsPressed) {
+    translate(width / 2, height / 2);
+
+    let mx = mouseX - width / 2;
+    let my = mouseY - height / 2;
+    let pmx = pmouseX - width / 2;
+    let pmy = pmouseY - height / 2;
+
+    for (let i = 0; i < symmetry; i++) {
+        rotate(angle);
+
+        // Stroke weight from speed
+        let d = dist(mx, my, pmx, pmy);
+        let sw = map(d, 0, 15,
+                      6, 1.5, true);
+        strokeWeight(sw);
+
+        // Draw regular segment
+        line(mx, my, pmx, pmy);
+
+        // Draw mirrored segment
+        push();
+        scale(1, -1);
+        line(mx, my, pmx, pmy);
+        pop();
+    }
+}</pre>
+            </div>
+
+            <!-- Screenshot panel (center) -->
+            <div class="sketch-screenshot-panel">
+                <div class="sketch-screenshot-wrapper">
+                    <img src="../../assets/kaleidoscope.png" alt="Kaleidoscope" class="sketch-screenshot">
+                </div>
+                <span class="sketch-screenshot-label">My Canva</span>
+            </div>
+
+            <!-- Description panel (right) -->
+            <div class="sketch-description-panel">
+                <div class="sketch-description">
+                    <p>Un outil de dessin <b>kaléidoscopique</b> avec <b>8 axes de symétrie</b>. En maintenant le clic et en déplaçant la souris, des traits sont dessinés et <b>répliqués symétriquement</b>.</p>
+                    <p>L'origine est déplacée au <b>centre du canvas</b> avec <code>translate()</code>. Ensuite, une boucle <code>for</code> fait <b>8 rotations</b> de 45° chacune (<code>360 / 8</code>).</p>
+                    <p>À chaque rotation, on dessine le trait <b>normal</b> puis un trait <b>miroir</b> avec <code>scale(1, -1)</code> — ce qui double le nombre de segments à <b>16 au total</b>.</p>
+                    <p>L'<b>épaisseur du trait</b> varie selon la <b>vitesse du mouvement</b> : un geste lent produit un trait épais (6px), un geste rapide un trait fin (1.5px).</p>
+                    <p>Appuie sur <b>« C »</b> pour effacer le canvas et recommencer.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    
+    
+    
+    <!-- Custom presentation script to embed live running sketches/widgets inside paper frame -->
+    <script>
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var canvas = document.querySelector('canvas');
+                var wrapper = document.querySelector('.sketch-screenshot-wrapper');
+                
+                // 1. Move p5.js canvas if present
+                if (canvas && wrapper) {
+                    wrapper.innerHTML = ''; 
+                    wrapper.appendChild(canvas);
+                    canvas.style.display = 'block';
+                    canvas.style.position = 'relative';
+                    canvas.style.width = '100%';
+                    canvas.style.height = '100%';
+                    
+                    var resizeCanvas = function() {
+                        var w = wrapper.clientWidth;
+                        var h = wrapper.clientHeight;
+                        canvas.style.width = w + 'px';
+                        canvas.style.height = h + 'px';
+                    };
+                    window.addEventListener('resize', resizeCanvas);
+                    resizeCanvas();
+                }
+                
+                // 2. Move HTML widgets if present
+                var flipInteractive = document.querySelector('.flip-interactive');
+                var strategyContainer = document.getElementById('strategy-container');
+                if (wrapper) {
+                    if (flipInteractive) {
+                        wrapper.innerHTML = '';
+                        wrapper.appendChild(flipInteractive);
+                        flipInteractive.style.padding = '0';
+                        flipInteractive.style.minHeight = 'auto';
+                        flipInteractive.style.transform = 'none';
+                        flipInteractive.style.boxShadow = 'none';
+                        flipInteractive.style.background = 'none';
+                        var h1 = flipInteractive.querySelector('h1');
+                        if (h1) h1.style.fontSize = '1.25rem';
+                    } else if (strategyContainer) {
+                        wrapper.innerHTML = '';
+                        wrapper.appendChild(strategyContainer);
+                        strategyContainer.style.padding = '0';
+                        strategyContainer.style.minHeight = 'auto';
+                        strategyContainer.style.transform = 'none';
+                        strategyContainer.style.boxShadow = 'none';
+                        strategyContainer.style.background = 'none';
+                        var h1 = strategyContainer.querySelector('h1');
+                        if (h1) h1.style.fontSize = '1.25rem';
+                        var strategyText = document.getElementById('strategy');
+                        if (strategyText) {
+                            strategyText.style.fontSize = '3.5rem';
+                            strategyText.style.aspectRatio = 'auto';
+                            strategyText.style.margin = '1rem 0';
+                        }
+                    }
+                }
+
+                // 3. Pointer-following parallax for paper elements
+                const papers = [
+                    { el: document.querySelector('.sketch-code-panel'), r: -1.5, mx: 12, my: 8 },
+                    { el: document.querySelector('.sketch-screenshot-panel'), r: 2, mx: -8, my: 12 },
+                    { el: document.querySelector('.sketch-description-panel'), r: 1.2, mx: 10, my: -6 },
+                    { el: document.querySelector('.flip-interactive, .words-interactive, .typoexp-interactive'), r: -1, mx: 6, my: -8 }
+                ];
+                
+                let pTargetX = 0, pTargetY = 0;
+                let pCurrentX = 0, pCurrentY = 0;
+                
+                window.addEventListener('mousemove', function(e) {
+                    pTargetX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+                    pTargetY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+                });
+                
+                function updateParallax() {
+                    pCurrentX += (pTargetX - pCurrentX) * 0.08;
+                    pCurrentY += (pTargetY - pCurrentY) * 0.08;
+                    
+                    papers.forEach(function(paper) {
+                        if (paper.el) {
+                            const tx = pCurrentX * paper.mx;
+                            const ty = pCurrentY * paper.my;
+                            const rot = paper.r + pCurrentX * 1;
+                            paper.el.style.transform = 'translate3d(' + tx + 'px, ' + ty + 'px, 0) rotate(' + rot + 'deg)';
+                        }
+                    });
+                    
+                    requestAnimationFrame(updateParallax);
+                }
+                
+                papers.forEach(function(paper) {
+                    if (paper.el) {
+                        paper.el.style.transition = 'none';
+                    }
+                });
+                
+                updateParallax();
+            }, 150);
+        });
+    </script>
+
+
+
+</body>
+</html>

@@ -3,16 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chaton</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>creative code</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    
-    <div>
-    <h1>i love coding</h1>
-    <script src="circles.js"></script>
-    <script src="p5.js"></script>
+<body class="home-body">
+    <!-- Fullscreen scan texture overlay -->
+    <div class="scan-overlay-global"></div>
 
+    <header class="header">
+        <h1 class="main-title">Creative code</h1>
+        <p class="subtitle">Documentation et présentation du processus</p>
+    </header>
+
+    <div class="gallery-grid">
+        <!-- Column 1 (Left Paper) -->
+        <div class="gallery-column col-1">
+            <a href="sketches/html/Flip%20Colors.html" class="gallery-item">
+                <span>Flip Colors</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/flipcolors.png" alt="Flip Colors" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="sketches/html/Fuck%20Words.html" class="gallery-item">
+                <span>Fuck Words</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/fuckwords.png" alt="Fuck Words" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="sketches/p5js/moireerreur.html" class="gallery-item">
+                <span>Moire Erreur</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/moireerreur.png" alt="Moire Erreur" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="sketches/p5js/objbouncy.html" class="gallery-item">
+                <span>Bouncy Object</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/objbouncy.png" alt="Bouncy Object" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="sketches/p5js/dvd-movement.html" class="gallery-item">
+                <span>DVD Movement</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/dvd-movement.png" alt="DVD Movement" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="sketches/p5js/glimmerobservation.html" class="gallery-item">
+                <span>Glimmer Observation</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/glimmerobservation.png" alt="Glimmer Observation" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Column 2 (Middle Paper) -->
+        <div class="gallery-column col-2">
+            <a href="sketches/p5js/interactivegrid.html" class="gallery-item">
+                <span>Interactive Grid</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/interactivegrid.png" alt="Interactive Grid" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="sketches/p5js/kaleidoscope.html" class="gallery-item">
+                <span>Kaleidoscope</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/kaleidoscope.png" alt="Kaleidoscope" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="sketches/p5js/matrixrain.html" class="gallery-item">
+                <span>Matrix Rain</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/matrixrain.png" alt="Matrix Rain" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="sketches/p5js/bouncingparticles.html" class="gallery-item">
+                <span>Bouncing Particles</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/bouncingparticles.png" alt="Bouncing Particles" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="sketches/p5js/canvastyle.html" class="gallery-item">
+                <span>Canvas Style</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/canvastyle.png" alt="Canvas Style" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="sketches/p5js/flowfield.html" class="gallery-item">
+                <span>Flow Field</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/flowfield.png" alt="Flow Field" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Column 3 (Right Paper) -->
+        <div class="gallery-column col-3">
+            <a href="sketches/p5js/fractaltree.html" class="gallery-item">
+                <span>Fractal Tree</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/fractaltree.png" alt="Fractal Tree" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="sketches/p5js/sinechain.html" class="gallery-item">
+                <span>Sine Chain</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/sinechain.png" alt="Sine Chain" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="sketches/p5js/starfield.html" class="gallery-item">
+                <span>Starfield</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/starfield.png" alt="Starfield" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="sketches/html/typoexp.html" class="gallery-item">
+                <span>Type exp</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/typoexp.png" alt="Type exp" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+
+            <a href="archive/circles.html" class="gallery-item">
+                <span>Circles</span>
+                <div class="paper-wrapper">
+                    <div class="paper-backing">
+                        <img src="assets/circles.png" alt="Circles" class="screenshot-img" loading="lazy">
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
+
+
+    <!-- Keep lightbox markup in case it's needed/called -->
+    <div class="lb" id="lb" aria-hidden="true">
+        <button type="button" aria-label="Fermer">×</button>
+        <iframe allow="autoplay"></iframe>
+    </div>
+
+    <!-- Pointer-following parallax script for papers -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const columns = [
+                { el: document.querySelector('.gallery-column.col-1'), r: 0, mx: 18, my: 12 },
+                { el: document.querySelector('.gallery-column.col-2'), r: -5.6, mx: -12, my: 18 },
+                { el: document.querySelector('.gallery-column.col-3'), r: 0, mx: 14, my: -10 }
+            ];
+            
+            let targetX = 0, targetY = 0;
+            let currentX = 0, currentY = 0;
+            
+            window.addEventListener('mousemove', (e) => {
+                targetX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+                targetY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+            });
+            
+            function update() {
+                currentX += (targetX - currentX) * 0.08; // smooth easing
+                currentY += (targetY - currentY) * 0.08;
+                
+                columns.forEach(col => {
+                    if (col.el) {
+                        const tx = currentX * col.mx;
+                        const ty = currentY * col.my;
+                        const rot = col.r + currentX * 1.5;
+                        col.el.style.transform = `translate3d(${tx}px, ${ty}px, 0) rotate(${rot}deg)`;
+                    }
+                });
+                
+                requestAnimationFrame(update);
+            }
+            
+            columns.forEach(col => {
+                if (col.el) {
+                    col.el.style.transition = 'none';
+                }
+            });
+            
+            update();
+        });
+    </script>
 </body>
 </html>
