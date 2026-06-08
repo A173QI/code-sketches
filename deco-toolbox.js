@@ -156,8 +156,8 @@
             position: fixed;
             bottom: 0;
             right: 0;
-            width: 320px;
-            height: 320px;
+            width: 400px;
+            height: 400px;
             z-index: 1000000;
             pointer-events: auto;
             background: transparent;
@@ -167,14 +167,14 @@
             overflow: visible;
         }
         #leaf-blower {
-            width: 260px;
-            height: 260px;
+            width: 340px;
+            height: 340px;
             object-fit: contain;
             cursor: pointer;
             pointer-events: auto;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             /* Slide-hidden off screen by default, rotated but slightly visible */
-            transform: translate(125px, 125px) rotate(45deg);
+            transform: translate(170px, 170px) rotate(45deg);
             transform-origin: bottom right;
             outline: none !important;
             border: none !important;
@@ -182,7 +182,7 @@
         }
         #leaf-blower-container:hover #leaf-blower {
             /* Slide into view and rotate to active position */
-            transform: translate(-15px, -15px) rotate(0deg);
+            transform: translate(-20px, -20px) rotate(0deg);
             filter: drop-shadow(8px 16px 24px rgba(0,0,0,0.35));
         }
         #leaf-blower-label {
@@ -201,6 +201,64 @@
             display: none;
             white-space: nowrap;
             transform: translate(-50%, -140%);
+        }
+
+        /* Drag Basket styles */
+        #drag-basket-container {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 220px;
+            height: 220px;
+            z-index: 1000000;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+            transition: opacity 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+        }
+        #drag-basket-container.show-basket {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+        #drag-basket-container.drag-over {
+            transform: scale(1.18) translateY(-10px);
+        }
+        #drag-basket-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0px 8px 20px rgba(0,0,0,0.35));
+            transition: transform 0.2s ease;
+            position: relative !important;
+            z-index: auto !important;
+            pointer-events: none !important;
+        }
+        #drag-basket-label {
+            position: absolute;
+            bottom: -5px;
+            background: rgba(19, 27, 35, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e9f1f7;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0.9;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        #drag-basket-container.drag-over #drag-basket-label {
+            transform: scale(1.05);
+            background: #2274a5;
         }
     `;
     document.head.appendChild(styleEl);
@@ -231,11 +289,16 @@
     const onMouseDown = (e) => {
         const img = e.target.closest('.deco-img');
         // Prevent drag on leaf blower itself
-        if (!img || img.id === 'leaf-blower') return;
+        if (!img || img.id === 'leaf-blower' || img.id === 'drag-basket-img') return;
 
         e.preventDefault();
         activeDragEl = img;
         activeDragEl.classList.add('dragging');
+
+        const basket = document.getElementById('drag-basket-container');
+        if (basket) {
+            basket.classList.add('show-basket');
+        }
 
         const contentContainer = document.querySelector('.sketch-content');
         contentRect = contentContainer ? contentContainer.getBoundingClientRect() : document.body.getBoundingClientRect();
@@ -265,13 +328,40 @@
         activeDragEl.style.top = newTop + 'px';
         activeDragEl.style.right = 'auto';
         activeDragEl.style.bottom = 'auto';
+
+        // Check if cursor is over basket
+        const basket = document.getElementById('drag-basket-container');
+        if (basket) {
+            const bRect = basket.getBoundingClientRect();
+            if (e.clientX >= bRect.left && e.clientX <= bRect.right && e.clientY >= bRect.top && e.clientY <= bRect.bottom) {
+                basket.classList.add('drag-over');
+            } else {
+                basket.classList.remove('drag-over');
+            }
+        }
     };
 
-    const onMouseUp = () => {
+    const onMouseUp = (e) => {
         if (activeDragEl) {
-            activeDragEl.classList.remove('dragging');
+            const basket = document.getElementById('drag-basket-container');
+            let putInBasket = false;
+            if (basket) {
+                if (basket.classList.contains('drag-over')) {
+                    putInBasket = true;
+                }
+                basket.classList.remove('show-basket');
+                basket.classList.remove('drag-over');
+            }
+
+            const el = activeDragEl;
+            el.classList.remove('dragging');
             activeDragEl = null;
-            debouncedSave();
+
+            if (putInBasket) {
+                collectObject(el);
+            } else {
+                debouncedSave();
+            }
         }
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
@@ -280,11 +370,16 @@
     // Touch Support for Mobile Dragging (Fixing Jump bug)
     const onTouchStart = (e) => {
         const img = e.target.closest('.deco-img');
-        if (!img || img.id === 'leaf-blower') return;
+        if (!img || img.id === 'leaf-blower' || img.id === 'drag-basket-img') return;
 
         e.preventDefault();
         activeDragEl = img;
         activeDragEl.classList.add('dragging');
+
+        const basket = document.getElementById('drag-basket-container');
+        if (basket) {
+            basket.classList.add('show-basket');
+        }
 
         const contentContainer = document.querySelector('.sketch-content');
         contentRect = contentContainer ? contentContainer.getBoundingClientRect() : document.body.getBoundingClientRect();
@@ -316,13 +411,40 @@
         activeDragEl.style.top = newTop + 'px';
         activeDragEl.style.right = 'auto';
         activeDragEl.style.bottom = 'auto';
+
+        // Check if touch is over basket
+        const basket = document.getElementById('drag-basket-container');
+        if (basket) {
+            const bRect = basket.getBoundingClientRect();
+            if (touch.clientX >= bRect.left && touch.clientX <= bRect.right && touch.clientY >= bRect.top && touch.clientY <= bRect.bottom) {
+                basket.classList.add('drag-over');
+            } else {
+                basket.classList.remove('drag-over');
+            }
+        }
     };
 
     const onTouchEnd = () => {
         if (activeDragEl) {
-            activeDragEl.classList.remove('dragging');
+            const basket = document.getElementById('drag-basket-container');
+            let putInBasket = false;
+            if (basket) {
+                if (basket.classList.contains('drag-over')) {
+                    putInBasket = true;
+                }
+                basket.classList.remove('show-basket');
+                basket.classList.remove('drag-over');
+            }
+
+            const el = activeDragEl;
+            el.classList.remove('dragging');
             activeDragEl = null;
-            debouncedSave();
+
+            if (putInBasket) {
+                collectObject(el);
+            } else {
+                debouncedSave();
+            }
         }
         document.removeEventListener('touchmove', onTouchMove);
         document.removeEventListener('touchend', onTouchEnd);
@@ -359,7 +481,7 @@
     // 6. Hover Track
     const onMouseEnter = (e) => {
         const img = e.target.closest('.deco-img');
-        if (img && img.id !== 'leaf-blower') {
+        if (img && img.id !== 'leaf-blower' && img.id !== 'drag-basket-img') {
             hoveredEl = img;
         }
     };
@@ -382,7 +504,7 @@
     // Double-click stamp to delete
     document.addEventListener('dblclick', (e) => {
         const img = e.target.closest('.deco-img');
-        if (img && img.id !== 'leaf-blower') {
+        if (img && img.id !== 'leaf-blower' && img.id !== 'drag-basket-img') {
             e.preventDefault();
             img.remove();
             debouncedSave();
@@ -392,7 +514,7 @@
 
     // 7. Double-click Empty Space to Add Decoration
     document.addEventListener('dblclick', (e) => {
-        if (e.target.closest('.deco-img') || e.target.closest('.sketch-code-panel') || e.target.closest('.sketch-screenshot-panel') || e.target.closest('.sketch-description-panel') || e.target.closest('.back-link') || e.target.closest('.flip-interactive') || e.target.closest('.words-interactive') || e.target.closest('.typoexp-interactive') || e.target.id === 'leaf-blower') {
+        if (e.target.closest('.deco-img') || e.target.closest('.sketch-code-panel') || e.target.closest('.sketch-screenshot-panel') || e.target.closest('.sketch-description-panel') || e.target.closest('.back-link') || e.target.closest('.flip-interactive') || e.target.closest('.words-interactive') || e.target.closest('.typoexp-interactive') || e.target.id === 'leaf-blower' || e.target.id === 'drag-basket-img' || e.target.id === 'drag-basket-container') {
             return;
         }
 
@@ -443,8 +565,8 @@
         let htmlLines = ['        <!-- Background collage decorations (behind papers) -->'];
 
         docImgs.forEach(img => {
-            // Exclude Leaf Blower from being saved to page markup
-            if (img.id === 'leaf-blower') return;
+            // Exclude Leaf Blower and Basket from being saved to page markup
+            if (img.id === 'leaf-blower' || img.id === 'drag-basket-img') return;
 
             const src = img.getAttribute('src') || '';
             const filename = src.substring(src.lastIndexOf('/') + 1);
@@ -633,8 +755,8 @@
 
             const docImgs = document.querySelectorAll('.deco-img');
             docImgs.forEach(img => {
-                // Ignore leaf blower itself and any currently dragged element
-                if (img === blower || img.classList.contains('dragging')) return;
+                // Ignore leaf blower, basket image, and any currently dragged element
+                if (img === blower || img.id === 'drag-basket-img' || img.classList.contains('dragging')) return;
 
                 const imgRect = img.getBoundingClientRect();
                 const cx = imgRect.left + imgRect.width / 2;
@@ -644,10 +766,10 @@
                 const dy = cy - by;
                 const dist = Math.sqrt(dx*dx + dy*dy);
 
-                // Affect items within 700px radius from the top of the blower
-                if (dist < 700 && dist > 10) {
-                    const force = (700 - dist) / 700;
-                    const speed = force * 8; // wind speed per frame
+                // Affect items within 450px radius (reduced active zone of push)
+                if (dist < 450 && dist > 10) {
+                    const force = (450 - dist) / 450;
+                    const speed = force * 9; // wind speed per frame
 
                     const vx = (dx / dist) * speed;
                     const vy = (dy / dist) * speed;
@@ -682,6 +804,73 @@
         blowerContainer.addEventListener('mouseleave', stopBlowing);
     };
 
+    // 9b. Basket Logic for Secret Collection
+    const initBasket = () => {
+        const basketContainer = document.createElement('div');
+        basketContainer.id = 'drag-basket-container';
+        basketContainer.innerHTML = `
+            <img src="${assetPrefix}Basket.png" id="drag-basket-img" alt="" aria-hidden="true">
+            <div id="drag-basket-label">Secret Collection Drawer</div>
+        `;
+        document.body.appendChild(basketContainer);
+    };
+
+    // Add dragged element to Secret Collection localStorage and animate drop
+    const collectObject = (el) => {
+        const src = el.getAttribute('src') || '';
+        const filename = src.substring(src.lastIndexOf('/') + 1);
+        const name = formatName(filename);
+        
+        let collected = [];
+        try {
+            collected = JSON.parse(localStorage.getItem('collected_objects')) || [];
+        } catch(e) {
+            collected = [];
+        }
+        
+        const alreadyExists = collected.some(item => item.filename === filename);
+        if (!alreadyExists) {
+            collected.push({
+                filename: filename,
+                name: name,
+                src: src,
+                timestamp: Date.now()
+            });
+            localStorage.setItem('collected_objects', JSON.stringify(collected));
+        }
+
+        // Play drop-into-basket animation (slide to basket and shrink to zero)
+        el.style.transition = 'transform 0.45s cubic-bezier(0.6, -0.28, 0.735, 0.045), opacity 0.45s ease';
+        el.style.transformOrigin = 'center center';
+        
+        const basket = document.getElementById('drag-basket-container');
+        if (basket) {
+            const bRect = basket.getBoundingClientRect();
+            const eRect = el.getBoundingClientRect();
+            const deltaX = (bRect.left + bRect.width / 2) - (eRect.left + eRect.width / 2);
+            const deltaY = (bRect.top + bRect.height / 2) - (eRect.top + eRect.height / 2);
+            
+            el.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.05) rotate(540deg)`;
+        } else {
+            el.style.transform = 'scale(0) rotate(360deg)';
+        }
+        el.style.opacity = '0';
+        
+        setTimeout(() => {
+            el.remove();
+            debouncedSave(); // Remove permanently from HTML page layout
+            showToast(`Collected: ${name}! Check Secret Drawer.`);
+        }, 450);
+    };
+
+    const formatName = (filename) => {
+        let name = filename.replace('.png', '');
+        name = name.replace(/_h|_v|_hv/g, ''); // Remove mirroring suffixes
+        name = name.replace(/-/g, ' ');
+        name = name.replace(/_/g, ' ');
+        return name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    };
+
     // 10. Initialise Event Bindings
     const init = () => {
         document.addEventListener('mousedown', onMouseDown);
@@ -696,11 +885,12 @@
 
         const docImgs = document.querySelectorAll('.deco-img');
         docImgs.forEach(img => {
-            if (img.id !== 'leaf-blower') {
+            if (img.id !== 'leaf-blower' && img.id !== 'drag-basket-img') {
                 bindEventsToElement(img);
             }
         });
 
+        initBasket();
         initLeafBlower();
         console.log('[Layout Editor] Direct manipulation gestures with leaf-blowing physics activated!');
     };
