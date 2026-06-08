@@ -90,10 +90,14 @@ body {
     color: #ffffff;
     margin: 0 0 1rem 0;
     line-height: 1;
+    position: relative;
+    z-index: 10;
 }
 
 /* Code panel (left) */
 .sketch-code-panel {
+    position: relative;
+    z-index: 10;
     background-image: url('../../assets/PaperMix-Kraft-09.png');
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -132,6 +136,8 @@ body {
 
 /* Canvas/Screenshot panel (center) */
 .sketch-screenshot-panel {
+    position: relative;
+    z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -189,6 +195,8 @@ body {
 
 /* Description panel (right) */
 .sketch-description-panel {
+    position: relative;
+    z-index: 10;
     background-image: url('../../assets/PaperMix-Kraft-16.png');
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -219,6 +227,8 @@ body {
 .flip-interactive, 
 .words-interactive,
 .typoexp-interactive {
+    position: relative;
+    z-index: 10;
     grid-column: 1 / -1;
     background-image: url('../../assets/PaperMix-Kraft-07.png');
     background-size: 100% 100%;
