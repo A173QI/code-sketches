@@ -127,146 +127,7 @@
         assetPool.push(base.replace('.png', '_hv.png'));
     });
 
-    // 2. Inject CSS Styles
-    const styleEl = document.createElement('style');
-    styleEl.innerHTML = `
-        /* Interactive dragging states - Outlines completely removed */
-        .deco-img {
-            cursor: grab !important;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease, filter 0.4s ease !important;
-            outline: none !important;
-            border: none !important;
-            user-select: none !important;
-            -webkit-user-select: none !important;
-            -webkit-user-drag: none !important;
-        }
-        .deco-img:hover {
-            cursor: grab !important;
-        }
-        .deco-img.dragging {
-            cursor: grabbing !important;
-            opacity: 0.95 !important;
-            transition: none !important;
-            outline: none !important;
-            border: none !important;
-        }
-
-        /* Leaf Blower styles - fixed viewport container hidden in invisible frame */
-        #leaf-blower-container {
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            width: 400px;
-            height: 400px;
-            z-index: 1000000;
-            pointer-events: auto;
-            background: transparent;
-            display: flex;
-            align-items: flex-end;
-            justify-content: flex-end;
-            overflow: visible;
-        }
-        #leaf-blower {
-            width: 340px;
-            height: 340px;
-            object-fit: contain;
-            cursor: pointer;
-            pointer-events: auto;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            /* Slide-hidden off screen by default, rotated but slightly visible */
-            transform: translate(170px, 170px) rotate(45deg);
-            transform-origin: bottom right;
-            outline: none !important;
-            border: none !important;
-            filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.25));
-        }
-        #leaf-blower-container:hover #leaf-blower {
-            /* Slide into view and rotate to active position */
-            transform: translate(-20px, -20px) rotate(0deg);
-            filter: drop-shadow(8px 16px 24px rgba(0,0,0,0.35));
-        }
-        #leaf-blower-label {
-            position: fixed;
-            pointer-events: none;
-            z-index: 1000001;
-            background-image: url('${assetPrefix}PaperMix-Kraft-09.png');
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-            filter: grayscale(1) brightness(1.2) contrast(1.1);
-            color: #131b23;
-            padding: 8px 18px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 600;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
-            display: none;
-            white-space: nowrap;
-            transform: translate(-50%, -140%) rotate(-2deg);
-        }
-
-        /* Drag Basket styles */
-        #drag-basket-container {
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
-            width: 220px;
-            height: 220px;
-            z-index: 1000000;
-            pointer-events: none;
-            opacity: 0;
-            transform: translateY(50px) scale(0.9);
-            transition: opacity 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: visible;
-        }
-        #drag-basket-container.show-basket {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
-        }
-        #drag-basket-container.drag-over {
-            transform: scale(1.18) translateY(-10px);
-        }
-        #drag-basket-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0px 8px 20px rgba(0,0,0,0.35));
-            transition: transform 0.2s ease;
-            position: relative !important;
-            z-index: auto !important;
-            pointer-events: none !important;
-        }
-        #drag-basket-label {
-            position: absolute;
-            bottom: -5px;
-            background-image: url('${assetPrefix}PaperMix-Kraft-09.png');
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-            filter: grayscale(1) brightness(1.2) contrast(1.1);
-            color: #131b23;
-            padding: 8px 18px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 600;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
-            white-space: nowrap;
-            pointer-events: none;
-            opacity: 0.9;
-            transform: rotate(2deg);
-            transition: transform 0.2s ease, filter 0.2s ease;
-        }
-        #drag-basket-container.drag-over #drag-basket-label {
-            transform: scale(1.06) rotate(-1deg);
-            filter: grayscale(0.2) brightness(1.22) contrast(1.15);
-        }
-    `;
-    document.head.appendChild(styleEl);
-
-    // 3. State Management
+    // 2. State & Style Management (Fixed ReferenceError & dynamically load stylesheet with correct prefix)
     let assetPrefix = '../../assets/';
     let hoveredEl = null;
     let saveTimeout = null;
@@ -281,7 +142,146 @@
             }
         }
     };
-    detectPrefix();
+
+    const injectStyles = () => {
+        const styleEl = document.createElement('style');
+        styleEl.innerHTML = `
+            /* Interactive dragging states - Outlines completely removed */
+            .deco-img {
+                cursor: grab !important;
+                transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease, filter 0.4s ease !important;
+                outline: none !important;
+                border: none !important;
+                user-select: none !important;
+                -webkit-user-select: none !important;
+                -webkit-user-drag: none !important;
+            }
+            .deco-img:hover {
+                cursor: grab !important;
+            }
+            .deco-img.dragging {
+                cursor: grabbing !important;
+                opacity: 0.95 !important;
+                transition: none !important;
+                outline: none !important;
+                border: none !important;
+            }
+
+            /* Leaf Blower styles - fixed viewport container hidden in invisible frame */
+            #leaf-blower-container {
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                width: 400px;
+                height: 400px;
+                z-index: 1000000;
+                pointer-events: auto;
+                background: transparent;
+                display: flex;
+                align-items: flex-end;
+                justify-content: flex-end;
+                overflow: visible;
+            }
+            #leaf-blower {
+                width: 340px;
+                height: 340px;
+                object-fit: contain;
+                cursor: pointer;
+                pointer-events: auto;
+                transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                /* Slide-hidden off screen by default, rotated but slightly visible */
+                transform: translate(170px, 170px) rotate(45deg);
+                transform-origin: bottom right;
+                outline: none !important;
+                border: none !important;
+                filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.25));
+            }
+            #leaf-blower-container:hover #leaf-blower {
+                /* Slide into view and rotate to active position */
+                transform: translate(-20px, -20px) rotate(0deg);
+                filter: drop-shadow(8px 16px 24px rgba(0,0,0,0.35));
+            }
+            #leaf-blower-label {
+                position: fixed;
+                pointer-events: none;
+                z-index: 1000001;
+                background-image: url('${assetPrefix}PaperMix-Kraft-09-thumb.png');
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+                filter: grayscale(1) brightness(1.2) contrast(1.1);
+                color: #131b23;
+                padding: 8px 18px;
+                font-family: 'Outfit', sans-serif;
+                font-size: 0.85rem;
+                font-weight: 600;
+                box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+                display: none;
+                white-space: nowrap;
+                transform: translate(-50%, -140%) rotate(-2deg);
+            }
+
+            /* Drag Basket styles */
+            #drag-basket-container {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                width: 220px;
+                height: 220px;
+                z-index: 1000000;
+                pointer-events: none;
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+                transition: opacity 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                overflow: visible;
+            }
+            #drag-basket-container.show-basket {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                pointer-events: auto;
+            }
+            #drag-basket-container.drag-over {
+                transform: scale(1.18) translateY(-10px);
+            }
+            #drag-basket-img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                filter: drop-shadow(0px 8px 20px rgba(0,0,0,0.35));
+                transition: transform 0.2s ease;
+                position: relative !important;
+                z-index: auto !important;
+                pointer-events: none !important;
+            }
+            #drag-basket-label {
+                position: absolute;
+                bottom: -5px;
+                background-image: url('${assetPrefix}PaperMix-Kraft-09-thumb.png');
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+                filter: grayscale(1) brightness(1.2) contrast(1.1);
+                color: #131b23;
+                padding: 8px 18px;
+                font-family: 'Outfit', sans-serif;
+                font-size: 0.85rem;
+                font-weight: 600;
+                box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+                white-space: nowrap;
+                pointer-events: none;
+                opacity: 0.9;
+                transform: rotate(2deg);
+                transition: transform 0.2s ease, filter 0.2s ease;
+            }
+            #drag-basket-container.drag-over #drag-basket-label {
+                transform: scale(1.06) rotate(-1deg);
+                filter: grayscale(0.2) brightness(1.22) contrast(1.15);
+            }
+        `;
+        document.head.appendChild(styleEl);
+    };
 
     // 4. Drag & Drop Implementation (Fixing Jump bug)
     let activeDragEl = null;
@@ -906,6 +906,9 @@
 
     // 10. Initialise Event Bindings
     const init = () => {
+        detectPrefix();
+        injectStyles();
+
         document.addEventListener('mousedown', onMouseDown);
         document.addEventListener('touchstart', onTouchStart, { passive: false });
         
