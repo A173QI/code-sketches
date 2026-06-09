@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>creative code</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="home-body" style="background-image: url('assets/background-1.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; background-blend-mode: multiply;">
+
+<body class="home-body"
+    style="background-image: url('assets/background-1.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; background-blend-mode: multiply;">
     <!-- Fullscreen scan texture overlay -->
     <div class="scan-overlay-global"></div>
 
@@ -70,7 +74,8 @@
                 <span>Glimmer Observation</span>
                 <div class="paper-wrapper">
                     <div class="paper-backing">
-                        <img src="assets/glimmerobservation.png" alt="Glimmer Observation" class="screenshot-img" loading="lazy">
+                        <img src="assets/glimmerobservation.png" alt="Glimmer Observation" class="screenshot-img"
+                            loading="lazy">
                     </div>
                 </div>
             </a>
@@ -82,7 +87,8 @@
                 <span>Interactive Grid</span>
                 <div class="paper-wrapper">
                     <div class="paper-backing">
-                        <img src="assets/interactivegrid.png" alt="Interactive Grid" class="screenshot-img" loading="lazy">
+                        <img src="assets/interactivegrid.png" alt="Interactive Grid" class="screenshot-img"
+                            loading="lazy">
                     </div>
                 </div>
             </a>
@@ -109,7 +115,8 @@
                 <span>Bouncing Particles</span>
                 <div class="paper-wrapper">
                     <div class="paper-backing">
-                        <img src="assets/bouncingparticles.png" alt="Bouncing Particles" class="screenshot-img" loading="lazy">
+                        <img src="assets/bouncingparticles.png" alt="Bouncing Particles" class="screenshot-img"
+                            loading="lazy">
                     </div>
                 </div>
             </a>
@@ -179,17 +186,14 @@
                     </div>
                 </div>
             </a>
-    </div> <!-- Close col-3 -->
+        </div> <!-- Close col-3 -->
     </div> <!-- Close gallery-grid -->
 
-    <!-- Secret Collection Card -->
+    <!-- Secret Collection link (simple paper-texture text tag) -->
     <div class="secret-collection-section">
-        <a href="secret-collection.html" class="secret-collection-paper">
-            <div class="secret-collection-content">
-                <h2>Secret Collection</h2>
-                <p id="secret-collection-msg">Drag decorations into the basket to collect curiosities</p>
-                <span id="secret-collection-count" class="secret-collection-count"></span>
-            </div>
+        <a href="secret-collection.html" class="secret-collection-link">
+            <span class="secret-collection-label">Secret Collection</span>
+            <span id="secret-collection-count" class="secret-collection-count"></span>
         </a>
     </div>
 
@@ -201,19 +205,19 @@
                 { el: document.querySelector('.gallery-column.col-2'), r: -5.6, mx: -12, my: 18 },
                 { el: document.querySelector('.gallery-column.col-3'), r: 0, mx: 14, my: -10 }
             ];
-            
+
             let targetX = 0, targetY = 0;
             let currentX = 0, currentY = 0;
-            
+
             window.addEventListener('mousemove', (e) => {
                 targetX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
                 targetY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
             });
-            
+
             function update() {
                 currentX += (targetX - currentX) * 0.08; // smooth easing
                 currentY += (targetY - currentY) * 0.08;
-                
+
                 columns.forEach(col => {
                     if (col.el) {
                         const tx = currentX * col.mx;
@@ -222,7 +226,7 @@
                         col.el.style.transform = `translate3d(${tx}px, ${ty}px, 0) rotate(${rot}deg)`;
                     }
                 });
-                
+
                 requestAnimationFrame(update);
             }
             columns.forEach(col => {
@@ -230,26 +234,13 @@
                     col.el.style.transition = 'none';
                 }
             });
-            
+
             update();
 
-            // Update Secret Collection card with item count
-            let collected = [];
-            try {
-                collected = JSON.parse(localStorage.getItem('collected_objects')) || [];
-            } catch(e) {
-                collected = [];
-            }
-            const countEl = document.getElementById('secret-collection-count');
-            const msgEl = document.getElementById('secret-collection-msg');
-            if (collected.length > 0) {
-                if (countEl) countEl.textContent = collected.length + ' item' + (collected.length > 1 ? 's' : '') + ' collected';
-                if (msgEl) msgEl.textContent = 'Open your drawer of collected curiosities';
-            } else {
-                if (countEl) countEl.textContent = 'Drawer is empty';
-                if (msgEl) msgEl.textContent = 'Drag decorations into the basket on sketch pages to collect curiosities';
-            }
+            // No collected items mentioned below the button
         });
     </script>
+    <script src="deco-toolbox.js"></script>
 </body>
+
 </html>

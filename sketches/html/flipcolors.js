@@ -7,26 +7,34 @@ function setColor(name) {
 
 function randomColor() {
     console.log("hi");
-    let R = Math.round(Math.random() * 255);
-    let G = Math.round(Math.random() * 255);
-    let B = Math.round(Math.random() * 255);
+    // Generate extremely bright, popping, luminous HSL colors
+    let H = Math.round(Math.random() * 360);
+    let S = Math.round(92 + Math.random() * 8); // 92% to 100% saturation
+    let L = Math.round(74 + Math.random() * 14); // 74% to 88% lightness for a way brighter popping background
 
-    // // plus compliqué
-    // let theColor = "rgb(" + R + ", " + G + ", " + B + ")";
+    theColor = `hsl(${H}, ${S}%, ${L}%)`;
 
-    // plus simple (§)
-    theColor = `rgb(${R}, ${G}, ${B})`;
+    body.style.backgroundColor = theColor;
+    body.style.color = "black";
 
-    body.style.backgroundColor = theColor
+    // Apply color-shift flash PNG filter to all stamps and screenshot elements
+    const elements = document.querySelectorAll('.deco-img, .flip-interactive, .sketch-screenshot');
+    const randomHue = Math.round(Math.random() * 360);
+    const filterVal = `hue-rotate(${randomHue}deg) brightness(1.2) contrast(1.25)`;
+    
+    elements.forEach(el => {
+        el.style.transition = 'filter 0.08s ease';
+        el.style.filter = filterVal;
+    });
 
+    // Smoothly restore original styles after a short delay (350ms)
+    setTimeout(() => {
+        elements.forEach(el => {
+            el.style.transition = 'filter 0.4s ease';
+            el.style.filter = '';
+        });
+    }, 350);
 
-    console.log(R, G, B);
-
-    if (R + G + B < 383) {
-        body.style.color = "white";
-    }
-    else {
-        body.style.color = "black";
-    }
+    console.log("HSL color:", theColor);
 }
 
